@@ -11,11 +11,7 @@ setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Bibliografia/gao_
 
 ###### Extracting objects from the simulation branches #####
 
-load("simulation/my_sim_1_10_results.RData")
-load("simulation/my_sim_11_20_results.RData")
-load("simulation/my_sim_21_30_results.RData")
-load("simulation/my_sim_31_40_results.RData")
-load("simulation/my_sim_41_50_results.RData")
+# load .rds files with the results
 
 # discrete random effects for diseases
 
