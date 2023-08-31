@@ -416,7 +416,7 @@ E <- c(E1, E2, E3, E4)
 X <- as.matrix(bdiag(bdiag(X1[,c(1,2,4,6)], X2[,c(1,2,4,6)]), 
                      bdiag(X3[,c(1,2,4,6)], X4[,c(1,2,4,6)])))
 
-### MDAGAR with adjacency model with smoking, old and poverty covariates -------
+### MDAGAR model with fixed adjacency with smoking, old and poverty covariates -------
 
 # Metropolis within Gibbs Sampler for MCMC updating 
 MDAGAR <- function(y=Y, X = X, E = E, 
