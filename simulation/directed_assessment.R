@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Bibliografia/gao_2022/simulation/Disease graph/directed")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
