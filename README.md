@@ -5,9 +5,6 @@ The data analysis folder contains the data along with the script through which o
 - main.R: data preparation, posterior analysis
 - sampler.rcpp: metropolis within gibbs algorithm written with RcppArmadillo
   
-The simulation folder contains the codes used to produce the results shown in the manuscript. In particular there are the data simulation, the simulation and the assessment for each disease graphical model:
-- unstructured
-- directed
-- undirected
+The simulation folder contains the codes used to produce the results shown in the manuscript for the unstructured, directed and undirected disease graph under their true model. In particular there are the data simulation, the simulation, the assessment for each disease graphical model.
 
 
