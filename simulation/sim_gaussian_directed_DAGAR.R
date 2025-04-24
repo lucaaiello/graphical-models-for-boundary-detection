@@ -313,7 +313,7 @@ phi_true4 <- list()
 library(Rcpp)
 library(RcppArmadillo)
 
-sourceCpp('sampler_sim_gaussian_directed_DAGAR_fastest.cpp')
+sourceCpp('sampler_sim_gaussian_DAGAR_fastest.cpp')
 
 library(tictoc)
 
@@ -322,8 +322,8 @@ seed <- 1
 for(seed in 1:100){
   print(seed)
   
-  if (seed %in% c(3,8,9,10,11,12,71,72,79,80,93,94)) {
-    set.seed(10*seed)
+  if(seed == 74){
+    set.seed(10*seed)  
   } else {
     set.seed(seed)
   }
@@ -367,7 +367,7 @@ for(seed in 1:100){
   tic()
 
   mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1,
-                          q=4, Minc=Minc, W_dis = W_dis,
+                          q=4, Minc=Minc,
                           alpha=1, n_atoms=15,
                           runs=10000, burn=10000, thin=1)
 
