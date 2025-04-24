@@ -550,4 +550,4 @@ for(seed in 1:100){
   
 }
 
-saveRDS(WAIC, file = "WAIX/WAIC_directed_directed.rds")
+saveRDS(WAIC, file = "WAIX/WAIC_directed.rds")
