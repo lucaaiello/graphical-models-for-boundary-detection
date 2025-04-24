@@ -1,5 +1,5 @@
 # graphical-models-for-boundary-detection
-This is a repository containing all the codes used in "Detecting Spatial Health Disparities Using Disease Maps - Aiello &amp; Banerjee"
+This is a repository containing all the codes used in "Detecting Spatial Health Disparities Using Disease Maps"
 
 The data analysis folder contains the data along with the script through which obtaining the results regarding the three settings under which the analysis was conducted. For all of the three cases it was used the unstructured disease graph:
 - main.R: data preparation, posterior analysis
