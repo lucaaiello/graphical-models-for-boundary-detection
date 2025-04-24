@@ -1,6 +1,3 @@
-rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Review/Rcpp/Simulation/DAGAR")
-
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
 library(spdep)
@@ -188,17 +185,17 @@ X2 <- X1
 X3 <- X1
 X4 <- X1
 
-beta1 <- c(2,1)
-beta2 <- c(1,2)
-beta3 <- c(2,2)
-beta4 <- c(1,2)
+beta1 <- c(2,8)
+beta2 <- c(3,7)
+beta3 <- c(4,6)
+beta4 <- c(5,5)
 
 beta <- c(beta1,beta2,beta3,beta4)
 
-taud1 <- 10
-taud2 <- 10
-taud3 <- 10
-taud4 <- 10
+taud1 <- 500
+taud2 <- 500
+taud3 <- 500
+taud4 <- 500
 
 taud <- c(taud1,taud2,taud3,taud4)
 
@@ -251,8 +248,8 @@ invQ4 <- solve(Q[[4]])
 invQ <- as.matrix(bdiag(bdiag(invQ1, invQ2), bdiag(invQ3, invQ4)))
 Vr <- as.matrix(forceSymmetric(solve(diag(n * q)-A) %*% invQ %*% solve(diag(n * q)-t(A))))
 
-alpha <- 1
-taus <- 1/4
+alpha <- 5
+taus <- 0.1
 
 K <- 15
 
@@ -359,4 +356,4 @@ rmse <- c(rmse_beta,
           rmse_eta,
           rmse_alphas)
 
-saveRDS(rmse, file = "Misspecified models/rmse/rmse_directed_directed.rds")
+saveRDS(rmse, file = "rmse/rmse_directed.rds")
