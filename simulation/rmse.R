@@ -341,4 +341,4 @@ rmse <- c(rmse_beta,
           rmse_eta,
           rmse_A)
 
-saveRDS(rmse, file = "rmse/rmse_unstructured_unstructured.rds")
+saveRDS(rmse, file = "rmse/rmse_unstructured.rds")
