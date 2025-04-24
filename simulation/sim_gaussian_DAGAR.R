@@ -1,6 +1,3 @@
-rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Review/Rcpp/Simulation/DAGAR")
-
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
 library(spdep)
@@ -229,15 +226,15 @@ X2 <- X1
 X3 <- X1
 X4 <- X1
 
-beta1 <- c(2,1)
-beta2 <- c(1,2)
-beta3 <- c(2,2)
-beta4 <- c(1,2)
+beta1 <- c(2,8)
+beta2 <- c(3,7)
+beta3 <- c(4,6)
+beta4 <- c(5,5)
 
-taud1 <- 10
-taud2 <- 10
-taud3 <- 10
-taud4 <- 10
+taud1 <- 500
+taud2 <- 500
+taud3 <- 500
+taud4 <- 500
 
 Z1 <- sd_diff_mat(X1[,2],Minc)
 
@@ -278,8 +275,9 @@ invQ <- as.matrix(bdiag(bdiag(invQ1, invQ2), bdiag(invQ3, invQ4)))
 
 Vr <- as.matrix(kprod %*% invQ %*% t(kprod))
 
-alpha <- 1
-taus <- 1/4
+alpha <- 5
+taus <- 0.1
+sqrt(1/taus)
 
 K <- 15
 
@@ -308,7 +306,12 @@ seed <- 1
 
 for(seed in 1:100){
   print(seed)
-  set.seed(seed)
+  
+  if (seed == 59){
+    set.seed(10*seed)
+  } else {
+    set.seed(seed)
+  }
   
   r <- rmvnorm(1, rep(0, nq), Vr)
   v <- rbeta(K, 1, alpha)
@@ -351,7 +354,7 @@ for(seed in 1:100){
   mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1,
                           q=4, Minc=Minc,
                           alpha=1, n_atoms=15,
-                          runs=1000, burn=1000, thin=1)
+                          runs=10000, burn=10000, thin=1)
   
   toc()
   
