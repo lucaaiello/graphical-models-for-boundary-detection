@@ -139,33 +139,6 @@ sens3 <- matrix(0, 100, length(T_edge))
 spec4 <- matrix(0, 100, length(T_edge))
 sens4 <- matrix(0, 100, length(T_edge))
 
-T_edge_ad <- c(40, 50, 60, 70, 80, 90, 100, 110, 120)
-
-spec12 <- matrix(0, 100, length(T_edge_ad))
-sens12 <- matrix(0, 100, length(T_edge_ad))
-spec21 <- matrix(0, 100, length(T_edge_ad))
-sens21 <- matrix(0, 100, length(T_edge_ad))
-spec13 <- matrix(0, 100, length(T_edge_ad))
-sens13 <- matrix(0, 100, length(T_edge_ad))
-spec31 <- matrix(0, 100, length(T_edge_ad))
-sens31 <- matrix(0, 100, length(T_edge_ad))
-spec14 <- matrix(0, 100, length(T_edge_ad))
-sens14 <- matrix(0, 100, length(T_edge_ad))
-spec41 <- matrix(0, 100, length(T_edge_ad))
-sens41 <- matrix(0, 100, length(T_edge_ad))
-spec23 <- matrix(0, 100, length(T_edge_ad))
-sens23 <- matrix(0, 100, length(T_edge_ad))
-spec32 <- matrix(0, 100, length(T_edge_ad))
-sens32 <- matrix(0, 100, length(T_edge_ad))
-spec24 <- matrix(0, 100, length(T_edge_ad))
-sens24 <- matrix(0, 100, length(T_edge_ad))
-spec42 <- matrix(0, 100, length(T_edge_ad))
-sens42 <- matrix(0, 100, length(T_edge_ad))
-spec34 <- matrix(0, 100, length(T_edge_ad))
-sens34 <- matrix(0, 100, length(T_edge_ad))
-spec43 <- matrix(0, 100, length(T_edge_ad))
-sens43 <- matrix(0, 100, length(T_edge_ad))
-
 specW1 <- rep(0, 100)
 sensW1 <- rep(0, 100)
 specW2 <- rep(0, 100)
@@ -269,41 +242,25 @@ for(seed in 1:100){
   for(i in 1:length(T_edge)){
     est_diff1 <- factor(as.numeric(pvijm[1,] >= threshold1[i]), levels = c(0,1))
     conf_matrix1 <- table(est_diff1,true_diff1)
-    if (ncol(conf_matrix1) == 1) {
-      conf_matrix1 <- cbind(conf_matrix1,c(0,0))
-      colnames(conf_matrix1)[2] <- "1"
-      conf_matrix1 <- as.table(conf_matrix1)
-    }
+    
     spec1[seed,i] <- sensitivity(conf_matrix1)
     sens1[seed,i] <- specificity(conf_matrix1)
     
     est_diff2 <- factor(as.numeric(pvijm[2,] >= threshold2[i]), levels = c(0,1))
     conf_matrix2 <- table(est_diff2,true_diff2)
-    if (ncol(conf_matrix2) == 1) {
-      conf_matrix2 <- cbind(conf_matrix2,c(0,0))
-      colnames(conf_matrix2)[2] <- "1"
-      conf_matrix2 <- as.table(conf_matrix2)
-    }
+    
     spec2[seed,i] <- sensitivity(conf_matrix2)
     sens2[seed,i] <- specificity(conf_matrix2)
     
     est_diff3 <- factor(as.numeric(pvijm[3,] >= threshold3[i]), levels = c(0,1))
     conf_matrix3 <- table(est_diff3,true_diff3)
-    if (ncol(conf_matrix3) == 1) {
-      conf_matrix3 <- cbind(conf_matrix3,c(0,0))
-      colnames(conf_matrix3)[2] <- "1"
-      conf_matrix3 <- as.table(conf_matrix3)
-    }
+    
     spec3[seed,i] <- sensitivity(conf_matrix3)
     sens3[seed,i] <- specificity(conf_matrix3)
     
     est_diff4 <- factor(as.numeric(pvijm[4,] >= threshold4[i]), levels = c(0,1))
     conf_matrix4 <- table(est_diff4,true_diff4)
-    if (ncol(conf_matrix4) == 1) {
-      conf_matrix4 <- cbind(conf_matrix4,c(0,0))
-      colnames(conf_matrix4)[2] <- "1"
-      conf_matrix4 <- as.table(conf_matrix4)
-    }
+    
     spec4[seed,i] <- sensitivity(conf_matrix4)
     sens4[seed,i] <- specificity(conf_matrix4)
   }
@@ -331,6 +288,8 @@ table <- cbind(spec1_mean_dagar, sens1_mean_dagar,
 
 colnames(table) <- c("spec1", "sens1", "spec2", "sens2", "spec3", "sens3", "spec4", "sens4")
 rownames(table) <- as.character(c(45, 50 ,55 ,60, 65, 70, 75, 80, 85, 90, 95, 100, 105))
+
+rownames(table[9:13,]) <- c("85","90","95","100","105")
 
 round(table,3)
 
@@ -374,7 +333,7 @@ for (seed in 1:100) {
   mcmc_samples <- readRDS(filename)
   
   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "alphas")
+                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "A")
   
   W1 <- mcmc_samples$W1
   W2 <- mcmc_samples$W2
@@ -487,7 +446,7 @@ table_adj <- cbind(specW1_mean_dagar, sensW1_mean_dagar,
 colnames(table_adj) <- c("specW1", "sensW1", "specW2", "sensW2", "specW3", "sensW3", "specW4", "sensW4")
 round(table_adj,3)
 
-#WAIC loo package
+#WAIC loo
 
 library(loo)
 
@@ -550,4 +509,4 @@ for(seed in 1:100){
   
 }
 
-saveRDS(WAIC, file = "WAIX/WAIC_directed.rds")
+saveRDS(WAIC, file = "WAIC/WAIC_directed_unstructured.rds")
