@@ -290,7 +290,7 @@ for(seed in 1:100){
   
   mcmc_samples <- readRDS(filename)
   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "alphas")
+                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "A")
   
   post_mean_beta <- apply(mcmc_samples$beta, 2, mean)
   post_mean_phi1 <- apply(mcmc_samples$phi[,1:n], 2, mean)
@@ -307,7 +307,7 @@ for(seed in 1:100){
   post_mean_taus <- mean(mcmc_samples$taus)
   post_mean_rho <- apply(mcmc_samples$rho, 2, mean)
   post_mean_eta <- apply(mcmc_samples$eta, 2, mean)
-  post_mean_alphas <- apply(mcmc_samples$alphas, 2, mean)
+  #post_mean_alphas <- apply(mcmc_samples$alphas, 2, mean)
   
   mse_beta[seed] <- sum((post_mean_beta - beta)^2)
   mse_phi1[seed] <- sum((post_mean_phi1 - phivec[1:n])^2)
@@ -324,7 +324,7 @@ for(seed in 1:100){
   mse_tau[seed] <- (post_mean_taus - taus)^2
   mse_rho[seed] <- sum((post_mean_rho - rho)^2)
   mse_eta[seed] <- sum((post_mean_eta - eta)^2)
-  mse_alphas[seed] <- sum((post_mean_alphas - c(as.vector(alpha0[c(2,4,7,12)]),as.vector(alpha1[c(2,4,7,12)])))^2)
+  #mse_alphas[seed] <- sum((post_mean_alphas - as.vector(A)[-c(5,9,10,13,14,15)])^2)
   
 }
 
@@ -343,7 +343,7 @@ rmse_v <- sqrt(median(mse_v))
 rmse_tau <- sqrt(median(mse_tau))
 rmse_rho <- sqrt(median(mse_rho))
 rmse_eta <- sqrt(median(mse_eta))
-rmse_alphas <- sqrt(median(mse_alphas))
+#rmse_A <- sqrt(median(mse_A))
 
 rmse <- c(rmse_beta,
           rmse_phi1,rmse_phi2,rmse_phi3,rmse_phi4,
@@ -354,6 +354,6 @@ rmse <- c(rmse_beta,
           rmse_tau,
           rmse_rho,
           rmse_eta,
-          rmse_alphas)
+          0)
 
-saveRDS(rmse, file = "rmse/rmse_directed.rds")
+saveRDS(rmse, file = "rmse/rmse_directed_unstructured.rds")
