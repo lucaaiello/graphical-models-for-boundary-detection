@@ -1389,6 +1389,7 @@ edge_plot34
 ggarrange(edge_plot12, edge_plot13, edge_plot14, 
           edge_plot23, edge_plot24, edge_plot34, nrow = 2, ncol = 3)
 
+# Plots only for the models with covariates into the adjacency -----------------       
 # Adjacency modeling -----------------------------------------------------------
 
 W1 <- mcmc_samples$W1
