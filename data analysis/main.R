@@ -298,15 +298,23 @@ Z3 <- sd_diff_mat(X3[,6],Minc)
 
 Y <- c(Y1,Y2,Y3,Y4)
 E <- c(E1, E2, E3, E4)
-# X <- as.matrix(bdiag(bdiag(X1[,c(1,2,4,6)], X2[,c(1,2,4,6)]),
-#                      bdiag(X3[,c(1,2,4,6)], X4[,c(1,2,4,6)])))
-X <- as.matrix(bdiag(bdiag(X1[,1], X2[,1]),
-                     bdiag(X3[,1], X4[,1])))
+
+cvrts = "adj" # "adj" for covariates only in the adjacency
+              # "mean" for covariates only in the mean structure
+              # "meanadj" for covariates both in the mean and in the adjacency model                   
+            
+if (cvrts == "mean" | cvrts = "meanadj"){
+  X <- as.matrix(bdiag(bdiag(X1[,c(1,2,4,6)], X2[,c(1,2,4,6)]),
+                       bdiag(X3[,c(1,2,4,6)], X4[,c(1,2,4,6)])))  
+} else if (cvrts == "adj") {
+  X <- as.matrix(bdiag(bdiag(X1[,1], X2[,1]),
+                       bdiag(X3[,1], X4[,1])))  
+}
 
 library(Rcpp)
 library(RcppArmadillo)
 
-sourceCpp('sampler3_fastest.cpp')
+sourceCpp('sampler.cpp')
 
 set.seed(12345)
 
@@ -314,7 +322,7 @@ library(tictoc)
 
 tic()
 
-mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1, Z2=Z2, Z3=Z3, E=E,
+mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1, Z2=Z2, Z3=Z3, E=E, cvrts = "adj",
                         q=4, Winc=Winc, Minc=Minc,
                         alpha=1, n_atoms=15,
                         runs=10000, burn=50000, thin=5)
