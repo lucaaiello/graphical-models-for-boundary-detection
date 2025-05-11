@@ -259,7 +259,7 @@ arma::vec replicate_elements(const arma::vec& theta, const arma::ivec& u) {
 
 // Function to perform MADAGAR algorithm
 
-List MADAGAR(arma::vec y, arma::mat X, arma::mat Z1, arma::mat Z2, arma::mat Z3, arma::vec E, 
+List MADAGAR(arma::vec y, arma::mat X, arma::mat Z1, arma::mat Z2, arma::mat Z3, arma::vec E, std::string cvrts,
              int q, arma::mat Winc, arma::mat Minc, double alpha, int n_atoms, 
              int runs, int burn, int thin) {
   
@@ -768,7 +768,7 @@ List MADAGAR(arma::vec y, arma::mat X, arma::mat Z1, arma::mat Z2, arma::mat Z3,
     ////////////////
     // Update eta //
     ////////////////
-
+if (cvrts == "adj" || cvrts == "meanadj") {
     arma::vec pro_etaeta = arma::mvnrnd(etaeta, xi_etaeta, 1);
 
     arma::vec pro_eta1 = arma::vec(q, arma::fill::zeros);
@@ -847,6 +847,8 @@ List MADAGAR(arma::vec y, arma::mat X, arma::mat Z1, arma::mat Z2, arma::mat Z3,
 
     // Adjust diagonal of xi_etaeta using vectorized operations
     xi_etaeta.diag() += 1e-3 * xi_etaeta.diag();
+
+  }
 
     //////////////
     // Update A //
