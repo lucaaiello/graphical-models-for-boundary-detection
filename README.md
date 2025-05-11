@@ -27,3 +27,23 @@ The WAIC and rmse folder contain codes to generate tables and figures regarding 
 The CAR folder contains codes to reproduce the results concerning the comparison in the supplementary materials with the MCAR specification. 
 
 
+Here a brief guideline on where to find code to generate the plots and tables regarding the results in the manuscript:
+
+Figure 1, 2, 3, 5, 6, 7, 8, 9: data analysis/main.R
+Table 1: Misspecified models/WAIC_assessment.R
+Table 2, 3: Misspecified models/Unstructured/Unstructured/assessment.R (top rows), Misspecified models/Directed/Unstructured/assessment.R (middle rows), Misspecified models/Undirected/Unstructured/assessment.R (bottom rows)
+
+Table S1: Misspecified models/rmse_assessment.R
+Table S2, S4: Misspecified models/Unstructured/Unstructured/assessment.R (top rows), Misspecified models/Directed/Directed/assessment_directed.R (middle rows), Misspecified models/Undirected/Undirected/assessment_undirected.R (bottom rows)
+Table S3, S5: CAR/assessment.R (top rows), CAR/assessment_directed.R (middle rows), CAR/assessment_undirected.R (bottom rows)
+Figure S1: Misspecified models/WAIC_comparison.R
+Figure S2: CAR/WAIC/WAIC_comparison_CAR.R
+Table S6, S7, S8: data analysis/main.R
+Figure S3-S6/S8-S24: data analysis/main.R
+
+
+
+
+
+
+
