@@ -12,7 +12,9 @@ The data analysis folder contains the data along with the script through which o
 For all of the three cases it was used the unstructured disease graph:
 - main.R: data preparation, posterior analysis
 - sampler.rcpp: metropolis within gibbs algorithm written with RcppArmadillo
-  
+
+Note that into main.R and sampler.rcpp there is a parameter cvrts that can take 3 values: "adj" for covariates only into the adjacency model, "mean" only in the mean structure and "meanadj" both in the mean and in the adjacency.
+ 
 The simulation folder contains the codes used to produce the results shown in the manuscript generating data through the unstructured, directed and undirected disease graph fitted under the unstructured model. In particular there are the data simulation, the simulation, the assessment for each disease graphical model.
 
 
