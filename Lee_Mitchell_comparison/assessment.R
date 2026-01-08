@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/JASA_submission/Lee_Mitchell_comparison")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -31,19 +30,19 @@ n_county <- length(county.ID)
 
 # discrete random effects for diseases
 
-phi_true <- readRDS("RE_generation_DAGAR/phi_true.rds")
+phi_true <- readRDS("Lee_Mitchell_comparison/RE_generation_DAGAR/phi_true.rds")
 
 # spatial adjacency matrix for diseases
 
-W_true <- readRDS("RE_generation_DAGAR/W_true.rds")
+W_true <- readRDS("Lee_Mitchell_comparison/RE_generation_DAGAR/W_true.rds")
 
 # covariates 
 
-X <- readRDS("RE_generation_DAGAR/X.rds")
+X <- readRDS("Lee_Mitchell_comparison/RE_generation_DAGAR/X.rds")
 
-Z <- readRDS("RE_generation_DAGAR/Z.rds")
+Z <- readRDS("Lee_Mitchell_comparison/RE_generation_DAGAR/Z.rds")
 
-Y <- readRDS("RE_generation_DAGAR/Y_list.rds")
+Y <- readRDS("Lee_Mitchell_comparison/RE_generation_DAGAR/Y_list.rds")
 
 ## Adjacency matrix
 ca.neighbors <- poly2nb(ca.poly)
@@ -141,28 +140,6 @@ X <- X[order(final_perm),]
 
 seed <- 1
 
-summaryArray <- array(dim = c(28,4,100))
-
-# for (seed in 1:100) {
-#   print(seed)
-#   
-#   filename <- paste0("runs_DAGAR/mcmc_samples_", seed, ".rds")
-#   mcmc_samples <- readRDS(filename)
-#   
-#   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-#                            "F_r", "eta", "taus", "W")
-#   
-#   summaryArray[,c(1,2),seed] <- cbind(c(colMeans(mcmc_samples$beta),
-#                                         colMeans(mcmc_samples$taud),
-#                                         colMeans(mcmc_samples$theta),
-#                                         mean(mcmc_samples$taus)), 
-#                                       c(sqrt(colVars(mcmc_samples$beta)),
-#                                         sqrt(colVars(mcmc_samples$taud)),
-#                                         sqrt(colVars(mcmc_samples$theta)),
-#                                         sd(mcmc_samples$taus)))
-#   
-# }
-
 for(seed in 1:100){
   
   #######true difference boundary########
@@ -181,7 +158,7 @@ for(seed in 1:100){
   
   # DAGAR
   
-  filename_DAGAR <- paste0("runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename_DAGAR <- paste0("Lee_Mitchell_comparison/runs_DAGAR/mcmc_samples_", seed, ".rds")
   mcmc_samples_DAGAR <- readRDS(filename_DAGAR)
   
   names(mcmc_samples_DAGAR) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
@@ -191,7 +168,7 @@ for(seed in 1:100){
   phis_origin_DAGAR <- phis_DAGAR[,order(final_perm)]
   
   # CARBayes
-  filename_CARBayes <- paste0("runs_CARBayes/mcmc_samples_", seed, ".rds")
+  filename_CARBayes <- paste0("Lee_Mitchell_comparison/runs_CARBayes/mcmc_samples_", seed, ".rds")
   mcmc_samples_CARBayes <- readRDS(filename_CARBayes)
   
   W.prob.CARBayes <- mcmc_samples_CARBayes$localised.structure$W.border.prob[order(final_perm), order(final_perm)]
@@ -281,7 +258,7 @@ for (seed in 1:100) {
   
   print(seed)
   
-  filename_DAGAR <- paste0("runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename_DAGAR <- paste0("Lee_Mitchell_comparison/runs_DAGAR/mcmc_samples_", seed, ".rds")
   mcmc_samples_DAGAR <- readRDS(filename_DAGAR)
   
   names(mcmc_samples_DAGAR) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
@@ -307,7 +284,7 @@ for (seed in 1:100) {
   est_adj_CARBayes<- vector(length= nrow(indices))
   
   # CARBayes
-  filename_CARBayes <- paste0("runs_CARBayes/mcmc_samples_", seed, ".rds")
+  filename_CARBayes <- paste0("Lee_Mitchell_comparison/runs_CARBayes/mcmc_samples_", seed, ".rds")
   mcmc_samples_CARBayes <- readRDS(filename_CARBayes)
   
   W.post.CARBayes <- mcmc_samples_CARBayes$localised.structure$W.posterior[order(final_perm), order(final_perm)]
@@ -354,3 +331,4 @@ table_adj <- cbind(specW1_mean_DAGAR, sensW1_mean_DAGAR,
 
 colnames(table_adj) <- c("specW1", "sensW1", "specW2", "sensW2")
 round(table_adj,3)
+
