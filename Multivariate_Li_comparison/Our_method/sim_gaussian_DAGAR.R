@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Rejection/New_simulations")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -249,32 +248,7 @@ q <- 4
 
 rho <- c(0.2, 0.8, 0.4, 0.6)
 
-# A <- as.matrix(cbind(c(1, 1, 1, 1), c(0, 1, 1, 1), c(0, 0, 1, 1), c(0, 0, 0, 1)))
-# 
-# kprod <- kronecker(A, diag(n))
-
 W <- replicate(q, Minc, simplify = FALSE)
-
-# indices <- which(Minc == 1, arr.ind = TRUE)
-# 
-# for (d in 1:q) {
-#   
-#   for (i in 1:nrow(indices)) {
-#     row_idx <- indices[i, "row"]
-#     col_idx <- indices[i, "col"]
-#     
-#     W[[d]][row_idx,col_idx] <- as.numeric(exp(-Z1[row_idx,col_idx]*eta[d]) >= 0.5)
-#   }
-#   
-# }
-
-# Q <- Dinv_new(rho, n, q, W)
-# invQ1 <- solve(Q[[1]])
-# invQ2 <- solve(Q[[2]])
-# invQ3 <- solve(Q[[3]])
-# invQ4 <- solve(Q[[4]])
-# 
-# invQ <- as.matrix(bdiag(bdiag(invQ1, invQ2), bdiag(invQ3, invQ4)))
 
 D1 <- diag(rowSums(Minc))
 D2 <- diag(rowSums(Minc))
@@ -288,8 +262,8 @@ invQ4 <- solve(D4 - rho[4] * Minc)
 
 invQ <- as.matrix(bdiag(bdiag(invQ1, invQ2), bdiag(invQ3, invQ4)))
 
-Vr <- invQ # as.matrix(kprod %*% invQ %*% t(kprod))
-
+Vr <- invQ 
+                     
 alpha <- 5
 taus <- 0.1
 sqrt(1/taus)
@@ -313,7 +287,7 @@ phi_true4 <- list()
 library(Rcpp)
 library(RcppArmadillo)
 
-sourceCpp('Misspecified models/sampler_sim_gaussian_DAGAR_fastest.cpp')
+sourceCpp('Multivariate_Li_comparison/Our_method/sampler_sim_gaussian_DAGAR_fastest.cpp')
 
 library(tictoc)
 
@@ -321,12 +295,6 @@ seed <- 1
 
 for(seed in 54:100){
   print(seed)
-  
-  # if (seed == 59){
-  #   set.seed(10*seed)
-  # } else {
-  #   set.seed(seed)
-  # }
   
   r <- rmvnorm(1, rep(0, nq), Vr)
   v <- rbeta(K, 1, alpha)
@@ -373,26 +341,27 @@ for(seed in 54:100){
   
   toc()
   
-  filename <- paste0("Misspecified models/Independent/Unstructured/runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Multivariate_Li_comparison/Our_method/runs_DAGAR/mcmc_samples_", seed, ".rds")
   saveRDS(mcmc_samples, file = filename)
   
 }
 
-saveRDS(W_true1, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true1.rds")
-saveRDS(W_true2, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true2.rds")
-saveRDS(W_true3, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true3.rds")
-saveRDS(W_true4, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true4.rds")
+saveRDS(W_true1, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true1.rds")
+saveRDS(W_true2, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true2.rds")
+saveRDS(W_true3, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true3.rds")
+saveRDS(W_true4, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true4.rds")
 
-saveRDS(X1, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X1.rds")
-saveRDS(X2, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X2.rds")
-saveRDS(X3, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X3.rds")
-saveRDS(X4, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X4.rds")
+saveRDS(X1, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X1.rds")
+saveRDS(X2, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X2.rds")
+saveRDS(X3, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X3.rds")
+saveRDS(X4, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X4.rds")
 
-saveRDS(phi_true1, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true1.rds")
-saveRDS(phi_true2, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true2.rds")
-saveRDS(phi_true3, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true3.rds")
-saveRDS(phi_true4, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true4.rds")
+saveRDS(phi_true1, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true1.rds")
+saveRDS(phi_true2, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true2.rds")
+saveRDS(phi_true3, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true3.rds")
+saveRDS(phi_true4, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true4.rds")
 
-saveRDS(Z1, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/Z1.rds")
+saveRDS(Z1, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/Z1.rds")
 
-saveRDS(Y_list, "Misspecified models/Independent/Unstructured/RE_generation_DAGAR/Y_list.rds")
+saveRDS(Y_list, "Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/Y_list.rds")
+
