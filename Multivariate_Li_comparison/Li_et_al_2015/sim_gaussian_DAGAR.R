@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/JASA_submission/Multivariate_Li_comparison")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -301,7 +300,7 @@ phi_true4 <- list()
 library(Rcpp)
 library(RcppArmadillo)
 
-sourceCpp('Li_et_al_2015/sampler_sim_gaussian_CAR_fastest_indep.cpp')
+sourceCpp('Multivariate_Li_comparison/Li_et_al_2015/sampler_sim_gaussian_CAR_fastest_indep.cpp')
 
 library(tictoc)
 
@@ -309,12 +308,6 @@ seed <- 1
 
 for(seed in 1:100){
   print(seed)
-  
-  # if (seed == 59){
-  #   set.seed(10*seed)
-  # } else {
-  #   set.seed(seed)
-  # }
   
   r <- rmvnorm(1, rep(0, nq), Vr)
   v <- rbeta(K, 1, alpha)
@@ -352,35 +345,36 @@ for(seed in 1:100){
   
   Y_list[[seed]] <- Y
   
-  # tic()
-  # 
-  # mcmc_samples <- MCAR_indep(y=Y, X=X, Z1=Z1,
-  #                         q=4, Minc=Minc,
-  #                         alpha=1, n_atoms=15,
-  #                         runs=10000, burn=10000, thin=1)
-  # 
-  # toc()
+  tic()
+   
+  mcmc_samples <- MCAR_indep(y=Y, X=X, Z1=Z1,
+                           q=4, Minc=Minc,
+                           alpha=1, n_atoms=15,
+                           runs=10000, burn=10000, thin=1)
+   
+  toc()
   
-  # filename <- paste0("Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
-  # saveRDS(mcmc_samples, file = filename)
+  filename <- paste0("Multivariate_Li_comparison/Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
+  saveRDS(mcmc_samples, file = filename)
   
 }
 
-saveRDS(W_true1, "Li_et_al_2015/RE_generation_DAGAR/W_true1.rds")
-saveRDS(W_true2, "Li_et_al_2015/RE_generation_DAGAR/W_true2.rds")
-saveRDS(W_true3, "Li_et_al_2015/RE_generation_DAGAR/W_true3.rds")
-saveRDS(W_true4, "Li_et_al_2015/RE_generation_DAGAR/W_true4.rds")
+saveRDS(W_true1, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true1.rds")
+saveRDS(W_true2, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true2.rds")
+saveRDS(W_true3, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true3.rds")
+saveRDS(W_true4, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true4.rds")
 
-saveRDS(X1, "Li_et_al_2015/RE_generation_DAGAR/X1.rds")
-saveRDS(X2, "Li_et_al_2015/RE_generation_DAGAR/X2.rds")
-saveRDS(X3, "Li_et_al_2015/RE_generation_DAGAR/X3.rds")
-saveRDS(X4, "Li_et_al_2015/RE_generation_DAGAR/X4.rds")
+saveRDS(X1, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X1.rds")
+saveRDS(X2, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X2.rds")
+saveRDS(X3, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X3.rds")
+saveRDS(X4, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X4.rds")
 
-saveRDS(phi_true1, "Li_et_al_2015/RE_generation_DAGAR/phi_true1.rds")
-saveRDS(phi_true2, "Li_et_al_2015/RE_generation_DAGAR/phi_true2.rds")
-saveRDS(phi_true3, "Li_et_al_2015/RE_generation_DAGAR/phi_true3.rds")
-saveRDS(phi_true4, "Li_et_al_2015/RE_generation_DAGAR/phi_true4.rds")
+saveRDS(phi_true1, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true1.rds")
+saveRDS(phi_true2, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true2.rds")
+saveRDS(phi_true3, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true3.rds")
+saveRDS(phi_true4, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true4.rds")
 
-saveRDS(Z1, "Li_et_al_2015/RE_generation_DAGAR/Z1.rds")
+saveRDS(Z1, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/Z1.rds")
 
-saveRDS(Y_list, "Li_et_al_2015/RE_generation_DAGAR/Y_list.rds")
+saveRDS(Y_list, "Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/Y_list.rds")
+
