@@ -40,19 +40,24 @@ Table S1:
 - Misspecified models/Unstructured/Unstructured/assessment.R (top rows),
 - Misspecified models/Directed/Unstructured/assessment.R (middle rows),
 - Misspecified models/Undirected/Unstructured/assessment.R (bottom rows)
+
 Table S2: Misspecified models/rmse_assessment.R
+
 Table S3:
 - Misspecified models/Unstructured/Unstructured/assessment_FDR.R (top row),
 - Misspecified models/Directed/Directed/assessment_directed_FDR.R (middle row),
 - Misspecified models/Undirected/Undirected/assessment_undirected_FDR.R (bottom row)
+
 Table S4, S7:
 - Misspecified models/Unstructured/Unstructured/assessment.R (top rows),
 - Misspecified models/Directed/Directed/assessment_directed.R (middle rows),
 - Misspecified models/Undirected/Undirected/assessment_undirected.R (bottom rows)
+
 Table S5:
 - CAR/assessment_FDR.R (top row),
 - CAR/assessment_directed_FDR.R (middle row),
 - CAR/assessment_undirected_FDR.R (bottom row)
+
 Table S6, S8:
 - CAR/assessment.R (top rows),
 - CAR/assessment_directed.R (middle rows),
