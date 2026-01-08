@@ -31,11 +31,14 @@ Here a brief guideline on where to find code to generate the plots and tables re
 
 Figure 1, 2, 3, 5, 6, 7, 8, 9: data analysis/main.R
 Table 1: Misspecified models/WAIC_assessment.R
-Table 2, 3: Misspecified models/Unstructured/Unstructured/assessment_FDR.R (top rows), Misspecified models/Directed/Unstructured/assessment_FDR.R (middle rows), Misspecified models/Undirected/Unstructured/assessment_FDR.R (bottom rows)
+Table 2, 3: Misspecified models/Unstructured/Unstructured/assessment_FDR.R (top row), Misspecified models/Directed/Unstructured/assessment_FDR.R (middle row), Misspecified models/Undirected/Unstructured/assessment_FDR.R (bottom row)
 
-Table S1: Misspecified models/rmse_assessment.R
-Table S2, S4: Misspecified models/Unstructured/Unstructured/assessment.R (top rows), Misspecified models/Directed/Directed/assessment_directed.R (middle rows), Misspecified models/Undirected/Undirected/assessment_undirected.R (bottom rows)
-Table S3, S5: CAR/assessment.R (top rows), CAR/assessment_directed.R (middle rows), CAR/assessment_undirected.R (bottom rows)
+Table S1: Misspecified models/Unstructured/Unstructured/assessment.R (top rows), Misspecified models/Directed/Unstructured/assessment.R (middle rows), Misspecified models/Undirected/Unstructured/assessment.R (bottom rows)
+Table S2: Misspecified models/rmse_assessment.R
+Table S3: Misspecified models/Unstructured/Unstructured/assessment_FDR.R (top row), Misspecified models/Directed/Directed/assessment_directed_FDR.R (middle row), Misspecified models/Undirected/Undirected/assessment_undirected_FDR.R (bottom row)
+Table S4, S7: Misspecified models/Unstructured/Unstructured/assessment.R (top rows), Misspecified models/Directed/Directed/assessment_directed.R (middle rows), Misspecified models/Undirected/Undirected/assessment_undirected.R (bottom rows)
+Table S5: CAR/assessment_FDR.R (top row), CAR/assessment_directed_FDR.R (middle row), CAR/assessment_undirected_FDR.R (bottom row)
+Table S6, S8: CAR/assessment.R (top rows), CAR/assessment_directed.R (middle rows), CAR/assessment_undirected.R (bottom rows)
 Figure S1: Misspecified models/WAIC_comparison.R
 Figure S2: CAR/WAIC/WAIC_comparison_CAR.R
 Table S6, S7, S8: data analysis/main.R
