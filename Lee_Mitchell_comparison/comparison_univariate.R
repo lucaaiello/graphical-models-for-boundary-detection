@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/JASA_submission/Lee_Mitchell_comparison")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -262,20 +261,20 @@ for(seed in 1:100){
   
   toc()
   
-  filename <- paste0("runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Lee_Mitchell_comparison/runs_DAGAR/mcmc_samples_", seed, ".rds")
   saveRDS(mcmc_samples, file = filename)
   
 }
 
-saveRDS(W_true, "RE_generation_DAGAR/W_true.rds")
+saveRDS(W_true, "Lee_Mitchell_comparison/RE_generation_DAGAR/W_true.rds")
 
-saveRDS(X, "RE_generation_DAGAR/X.rds")
+saveRDS(X, "Lee_Mitchell_comparison/RE_generation_DAGAR/X.rds")
 
-saveRDS(phi_true, "RE_generation_DAGAR/phi_true.rds")
+saveRDS(phi_true, "Lee_Mitchell_comparison/RE_generation_DAGAR/phi_true.rds")
 
-saveRDS(Z, "RE_generation_DAGAR/Z.rds")
+saveRDS(Z, "Lee_Mitchell_comparison/RE_generation_DAGAR/Z.rds")
 
-saveRDS(Y_list, "RE_generation_DAGAR/Y_list.rds")
+saveRDS(Y_list, "Lee_Mitchell_comparison/RE_generation_DAGAR/Y_list.rds")
 
 
 
@@ -324,18 +323,19 @@ for(seed in 1:100){
   
   toc()
   
-  filename <- paste0("runs_CARBayes/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Lee_Mitchell_comparisonruns_CARBayes/mcmc_samples_", seed, ".rds")
   saveRDS(mcmc_samples, file = filename)
   
 }
 
-saveRDS(W_true, "RE_generation_CARBayes/W_true.rds")
+saveRDS(W_true, "Lee_Mitchell_comparisonRE_generation_CARBayes/W_true.rds")
 
-saveRDS(X, "RE_generation_CARBayes/X.rds")
+saveRDS(X, "Lee_Mitchell_comparisonRE_generation_CARBayes/X.rds")
 
-saveRDS(phi_true, "RE_generation_CARBayes/phi_true.rds")
+saveRDS(phi_true, "Lee_Mitchell_comparisonRE_generation_CARBayes/phi_true.rds")
 
-saveRDS(Z, "RE_generation_CARBayes/Z.rds")
+saveRDS(Z, "Lee_Mitchell_comparisonRE_generation_CARBayes/Z.rds")
 
-saveRDS(Y_list, "RE_generation_CARBayes/Y_list.rds")
+saveRDS(Y_list, "Lee_Mitchell_comparisonRE_generation_CARBayes/Y_list.rds")
+
 
