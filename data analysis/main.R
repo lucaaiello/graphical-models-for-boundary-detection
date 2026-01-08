@@ -1516,3 +1516,46 @@ adj_plot4
 
 ggarrange(adj_plot1,adj_plot2,adj_plot3,adj_plot4, nrow = 1, ncol = 4)
 
+# Graph cardinality
+
+graph_cardinality <- function(W) {
+  sum(W[upper.tri(W)] != 0)
+}
+
+library(ggplot2)
+
+trace_df <- rbind(
+  data.frame(
+    iter = seq_along(mcmc_samples$W1),
+    edges = sapply(mcmc_samples$W1, graph_cardinality),
+    cancer = "Lung"
+  ),
+  data.frame(
+    iter = seq_along(mcmc_samples$W2),
+    edges = sapply(mcmc_samples$W2, graph_cardinality),
+    cancer = "Esophageal"
+  ),
+  data.frame(
+    iter = seq_along(mcmc_samples$W3),
+    edges = sapply(mcmc_samples$W3, graph_cardinality),
+    cancer = "Larynx"
+  ),
+  data.frame(
+    iter = seq_along(mcmc_samples$W4),
+    edges = sapply(mcmc_samples$W4, graph_cardinality),
+    cancer = "Colorectal"
+  )
+)
+
+ggplot(trace_df, aes(x = iter, y = edges)) +
+  geom_line(linewidth = 0.4) +
+  facet_wrap(~ cancer, scales = "free_y", ncol = 2) +
+  labs(
+    x = "MCMC iteration",
+    y = "Number of edges"
+  ) +
+  theme_bw() +
+  theme(
+    strip.background = element_rect(fill = "grey90"),
+    strip.text = element_text(face = "bold")
+  ) 
