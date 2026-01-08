@@ -30,7 +30,9 @@ The CAR folder contains codes to reproduce the results concerning the comparison
 Here a brief guideline on where to find code to generate the plots and tables regarding the results in the manuscript:
 
 Figure 1, 2, 3, 5, 6, 7, 8, 9: data analysis/main.R
+
 Table 1: Misspecified models/WAIC_assessment.R
+
 Table 2, 3: 
 - Misspecified models/Unstructured/Unstructured/assessment_FDR.R (top row),
 - Misspecified models/Directed/Unstructured/assessment_FDR.R (middle row),
