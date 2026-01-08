@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Rejection/New_simulations")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -31,28 +30,28 @@ n_county <- length(county.ID)
 
 # discrete random effects for diseases
 
-phi_true1 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true1.rds")
-phi_true2 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true2.rds")
-phi_true3 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true3.rds")
-phi_true4 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/phi_true4.rds")
+phi_true1 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true1.rds")
+phi_true2 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true2.rds")
+phi_true3 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true3.rds")
+phi_true4 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/phi_true4.rds")
 
 # spatial adjacency matrix for diseases
 
-W_true1 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true1.rds")
-W_true2 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true2.rds")
-W_true3 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true3.rds")
-W_true4 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/W_true4.rds")
+W_true1 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true1.rds")
+W_true2 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true2.rds")
+W_true3 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true3.rds")
+W_true4 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/W_true4.rds")
 
 # covariates 
 
-X1 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X1.rds")
-X2 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X2.rds")
-X3 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X3.rds")
-X4 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/X4.rds")
+X1 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X1.rds")
+X2 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X2.rds")
+X3 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X3.rds")
+X4 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/X4.rds")
 
-Z1 <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/Z1.rds")
+Z1 <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/Z1.rds")
 
-Y <- readRDS("Misspecified models/Independent/Unstructured/RE_generation_DAGAR/Y_list.rds")
+Y <- readRDS("Multivariate_Li_comparison/Our_method/RE_generation_DAGAR/Y_list.rds")
 
 ## Adjacency matrix
 ca.neighbors <- poly2nb(ca.poly)
@@ -187,28 +186,6 @@ X4 <- X4[order(final_perm),]
 
 seed <- 1
 
-summaryArray <- array(dim = c(28,4,100))
-
-for (seed in 1:100) {
-  print(seed)
-  
-  filename <- paste0("Misspecified models/Independent/Unstructured/runs_DAGAR/mcmc_samples_", seed, ".rds")
-  mcmc_samples <- readRDS(filename)
-  
-  names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "A")
-  
-  summaryArray[,c(1,2),seed] <- cbind(c(colMeans(mcmc_samples$beta),
-                                        colMeans(mcmc_samples$taud),
-                                        colMeans(mcmc_samples$theta),
-                                        mean(mcmc_samples$taus)), 
-                                      c(sqrt(colVars(mcmc_samples$beta)),
-                                        sqrt(colVars(mcmc_samples$taud)),
-                                        sqrt(colVars(mcmc_samples$theta)),
-                                        sd(mcmc_samples$taus)))
-  
-}
-
 for(seed in 1:100){
   
   #######true difference boundary########
@@ -243,7 +220,7 @@ for(seed in 1:100){
 
   print(seed)
   
-  filename <- paste0("Misspecified models/Independent/Unstructured/runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Multivariate_Li_comparison/Our_method/runs_DAGAR/mcmc_samples_", seed, ".rds")
   mcmc_samples <- readRDS(filename)
   
   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
@@ -296,41 +273,25 @@ for(seed in 1:100){
   for(i in 1:length(T_edge)){
     est_diff1 <- factor(as.numeric(pvijm[1,] >= threshold1[i]), levels = c(0,1))
     conf_matrix1 <- table(est_diff1,true_diff1)
-    # if (ncol(conf_matrix1) == 1) {
-    #   conf_matrix1 <- cbind(conf_matrix1,c(0,0))
-    #   colnames(conf_matrix1)[2] <- "1"
-    #   conf_matrix1 <- as.table(conf_matrix1)
-    # }
+    
     spec1[seed,i] <- sensitivity(conf_matrix1)
     sens1[seed,i] <- specificity(conf_matrix1)
     
     est_diff2 <- factor(as.numeric(pvijm[2,] >= threshold2[i]), levels = c(0,1))
     conf_matrix2 <- table(est_diff2,true_diff2)
-    # if (ncol(conf_matrix2) == 1) {
-    #   conf_matrix2 <- cbind(conf_matrix2,c(0,0))
-    #   colnames(conf_matrix2)[2] <- "1"
-    #   conf_matrix2 <- as.table(conf_matrix2)
-    # }
+    
     spec2[seed,i] <- sensitivity(conf_matrix2)
     sens2[seed,i] <- specificity(conf_matrix2)
     
     est_diff3 <- factor(as.numeric(pvijm[3,] >= threshold3[i]), levels = c(0,1))
     conf_matrix3 <- table(est_diff3,true_diff3)
-    # if (ncol(conf_matrix3) == 1) {
-    #   conf_matrix3 <- cbind(conf_matrix3,c(0,0))
-    #   colnames(conf_matrix3)[2] <- "1"
-    #   conf_matrix3 <- as.table(conf_matrix3)
-    # }
+    
     spec3[seed,i] <- sensitivity(conf_matrix3)
     sens3[seed,i] <- specificity(conf_matrix3)
     
     est_diff4 <- factor(as.numeric(pvijm[4,] >= threshold4[i]), levels = c(0,1))
     conf_matrix4 <- table(est_diff4,true_diff4)
-    # if (ncol(conf_matrix4) == 1) {
-    #   conf_matrix4 <- cbind(conf_matrix4,c(0,0))
-    #   colnames(conf_matrix4)[2] <- "1"
-    #   conf_matrix4 <- as.table(conf_matrix4)
-    # }
+    
     spec4[seed,i] <- sensitivity(conf_matrix4)
     sens4[seed,i] <- specificity(conf_matrix4)
   }
@@ -357,8 +318,6 @@ table <- cbind(spec1_mean_dagar, sens1_mean_dagar,
 colnames(table) <- c("spec1", "sens1", "spec2", "sens2", "spec3", "sens3", "spec4", "sens4")
 rownames(table) <- as.character(c(45, 50 ,55 ,60, 65, 70, 75, 80, 85, 90, 95, 100, 105))
 
-# rownames(table[9:13,]) <- c("85","90","95","100","105")
-
 round(table,3)
 
 ################################################################################
@@ -369,7 +328,7 @@ for(seed in 1:100){
   
   print(seed)
   
-  filename <- paste0("Misspecified models/Independent/Unstructured/runs_DAGAR/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Multivariate_Li_comparison/Our_method/runs_DAGAR/mcmc_samples_", seed, ".rds")
   mcmc_samples <- readRDS(filename)
   
   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
@@ -406,3 +365,4 @@ ggplot(A_long, aes(x = factor(Col), y = factor(Row), fill = Ratio)) +
        title = "Relative magnitude of off-diagonal elements of A") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
