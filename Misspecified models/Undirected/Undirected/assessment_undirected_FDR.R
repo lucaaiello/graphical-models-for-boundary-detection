@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Rejection/New_simulations")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -186,28 +185,6 @@ X3 <- X3[order(final_perm),]
 X4 <- X4[order(final_perm),]
 
 seed <- 1
-
-summaryArray <- array(dim = c(28,4,100))
-
-for (seed in 1:100) {
-  print(seed)
-  
-  filename <- paste0("Misspecified models/Undirected/Undirected/runs_undirected_DAGAR/mcmc_samples_", seed, ".rds")
-  mcmc_samples <- readRDS(filename)
-  
-  names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "A")
-  
-  summaryArray[,c(1,2),seed] <- cbind(c(colMeans(mcmc_samples$beta),
-                                        colMeans(mcmc_samples$taud),
-                                        colMeans(mcmc_samples$theta),
-                                        mean(mcmc_samples$taus)), 
-                                      c(sqrt(colVars(mcmc_samples$beta)),
-                                        sqrt(colVars(mcmc_samples$taud)),
-                                        sqrt(colVars(mcmc_samples$theta)),
-                                        sd(mcmc_samples$taus)))
-  
-}
 
 T_edge1 <- seq(0, 135, 1)[-1]
 
@@ -425,3 +402,4 @@ table <- c(spec1_mean_dagar, sens1_mean_dagar,
 names(table) <- c("spec1", "sens1", "spec2", "sens2", "spec3", "sens3", "spec4", "sens4")
 
 round(table, 3)
+
