@@ -1,5 +1,4 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/JASA_submission/Multivariate_Li_comparison")
 
 library(maps)
 ca.county <- map("county","california", fill=TRUE, plot=FALSE)
@@ -31,28 +30,28 @@ n_county <- length(county.ID)
 
 # discrete random effects for diseases
 
-phi_true1 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/phi_true1.rds")
-phi_true2 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/phi_true2.rds")
-phi_true3 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/phi_true3.rds")
-phi_true4 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/phi_true4.rds")
+phi_true1 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true1.rds")
+phi_true2 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true2.rds")
+phi_true3 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true3.rds")
+phi_true4 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/phi_true4.rds")
 
 # spatial adjacency matrix for diseases
 
-W_true1 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/W_true1.rds")
-W_true2 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/W_true2.rds")
-W_true3 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/W_true3.rds")
-W_true4 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/W_true4.rds")
+W_true1 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true1.rds")
+W_true2 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true2.rds")
+W_true3 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true3.rds")
+W_true4 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/W_true4.rds")
 
 # covariates 
 
-X1 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/X1.rds")
-X2 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/X2.rds")
-X3 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/X3.rds")
-X4 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/X4.rds")
+X1 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X1.rds")
+X2 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X2.rds")
+X3 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X3.rds")
+X4 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/X4.rds")
 
-Z1 <- readRDS("Li_et_al_2015/RE_generation_DAGAR/Z1.rds")
+Z1 <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/Z1.rds")
 
-Y <- readRDS("Li_et_al_2015/RE_generation_DAGAR/Y_list.rds")
+Y <- readRDS("Multivariate_Li_comparison/Li_et_al_2015/RE_generation_DAGAR/Y_list.rds")
 
 ## Adjacency matrix
 ca.neighbors <- poly2nb(ca.poly)
@@ -187,28 +186,6 @@ X4 <- X4[order(final_perm),]
 
 seed <- 1
 
-summaryArray <- array(dim = c(28,4,100))
-
-for (seed in 1:100) {
-  print(seed)
-  
-  filename <- paste0("Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
-  mcmc_samples <- readRDS(filename)
-  
-  names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "eta", "taus", "W1", "W2", "W3", "W4", "A")
-  
-  summaryArray[,c(1,2),seed] <- cbind(c(colMeans(mcmc_samples$beta),
-                                        colMeans(mcmc_samples$taud),
-                                        colMeans(mcmc_samples$theta),
-                                        mean(mcmc_samples$taus)), 
-                                      c(sqrt(colVars(mcmc_samples$beta)),
-                                        sqrt(colVars(mcmc_samples$taud)),
-                                        sqrt(colVars(mcmc_samples$theta)),
-                                        sd(mcmc_samples$taus)))
-  
-}
-
 for(seed in 1:100){
   
   #######true difference boundary########
@@ -243,7 +220,7 @@ for(seed in 1:100){
 
   print(seed)
   
-  filename <- paste0("Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
+  filename <- paste0("Multivariate_Li_comparison/Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
   mcmc_samples <- readRDS(filename)
   
   names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
@@ -296,41 +273,25 @@ for(seed in 1:100){
   for(i in 1:length(T_edge)){
     est_diff1 <- factor(as.numeric(pvijm[1,] >= threshold1[i]), levels = c(0,1))
     conf_matrix1 <- table(est_diff1,true_diff1)
-    # if (ncol(conf_matrix1) == 1) {
-    #   conf_matrix1 <- cbind(conf_matrix1,c(0,0))
-    #   colnames(conf_matrix1)[2] <- "1"
-    #   conf_matrix1 <- as.table(conf_matrix1)
-    # }
+    
     spec1[seed,i] <- sensitivity(conf_matrix1)
     sens1[seed,i] <- specificity(conf_matrix1)
     
     est_diff2 <- factor(as.numeric(pvijm[2,] >= threshold2[i]), levels = c(0,1))
     conf_matrix2 <- table(est_diff2,true_diff2)
-    # if (ncol(conf_matrix2) == 1) {
-    #   conf_matrix2 <- cbind(conf_matrix2,c(0,0))
-    #   colnames(conf_matrix2)[2] <- "1"
-    #   conf_matrix2 <- as.table(conf_matrix2)
-    # }
+    
     spec2[seed,i] <- sensitivity(conf_matrix2)
     sens2[seed,i] <- specificity(conf_matrix2)
     
     est_diff3 <- factor(as.numeric(pvijm[3,] >= threshold3[i]), levels = c(0,1))
     conf_matrix3 <- table(est_diff3,true_diff3)
-    # if (ncol(conf_matrix3) == 1) {
-    #   conf_matrix3 <- cbind(conf_matrix3,c(0,0))
-    #   colnames(conf_matrix3)[2] <- "1"
-    #   conf_matrix3 <- as.table(conf_matrix3)
-    # }
+   
     spec3[seed,i] <- sensitivity(conf_matrix3)
     sens3[seed,i] <- specificity(conf_matrix3)
     
     est_diff4 <- factor(as.numeric(pvijm[4,] >= threshold4[i]), levels = c(0,1))
     conf_matrix4 <- table(est_diff4,true_diff4)
-    # if (ncol(conf_matrix4) == 1) {
-    #   conf_matrix4 <- cbind(conf_matrix4,c(0,0))
-    #   colnames(conf_matrix4)[2] <- "1"
-    #   conf_matrix4 <- as.table(conf_matrix4)
-    # }
+    
     spec4[seed,i] <- sensitivity(conf_matrix4)
     sens4[seed,i] <- specificity(conf_matrix4)
   }
@@ -363,70 +324,4 @@ round(table,3)
 
 ################################################################################
 
-#WAIC loo package
-
-library(loo)
-
-WAIC <- rep(0,100)
-
-for(seed in 1:100){
-  
-  filename <- paste0("Li_et_al_2015/runs_CAR_indep/mcmc_samples_", seed, ".rds")
-  mcmc_samples <- readRDS(filename)
-  
-  names(mcmc_samples) <- c("beta", "taud", "phi", "theta", "u", "rho", "v", "r", 
-                           "F_r", "taus", "W1", "W2", "W3", "W4")
-  
-  print(seed)
-  set.seed(seed)
-  
-  beta1 <- c(2,8)
-  beta2 <- c(3,7)
-  beta3 <- c(4,6)
-  beta4 <- c(5,5)
-  
-  taud1 <- 500
-  taud2 <- 500
-  taud3 <- 500
-  taud4 <- 500
-  
-  y1 <- X1 %*% beta1 + (phi_true1[[seed]] - mean(phi_true1[[seed]]))  + sqrt(1/taud1) * rnorm(n_county)
-  y2 <- X2 %*% beta2 + (phi_true2[[seed]] - mean(phi_true2[[seed]]))  + sqrt(1/taud2) * rnorm(n_county)
-  y3 <- X3 %*% beta3 + (phi_true3[[seed]] - mean(phi_true3[[seed]]))  + sqrt(1/taud3) * rnorm(n_county)
-  y4 <- X4 %*% beta4 + (phi_true4[[seed]] - mean(phi_true4[[seed]]))  + sqrt(1/taud4) * rnorm(n_county)
-  
-  X <- as.matrix(bdiag(bdiag(X1[final_perm,], X2[final_perm,]),
-                       bdiag(X3[final_perm,], X4[final_perm,])))
-  
-  yo1 <- y1[final_perm]
-  yo2 <- y2[final_perm]
-  yo3 <- y3[final_perm]
-  yo4 <- y4[final_perm]
-  
-  Y <- c(yo1, yo2, yo3, yo4)
-  
-  LL <- matrix(0, nrow = 4*n, ncol = 10000)
-  
-  for(i in 1:ncol(LL)){
-    
-    beta.post <- mcmc_samples$beta
-    phi.post <- mcmc_samples$phi
-    
-    LL[1:n,i] <- dnorm(Y[1:n], X[1:n,1:2]%*%beta.post[i,1:2] + phi.post[i,1:n], sqrt(1/taud1), log = T)
-    
-    LL[(n+1):(2*n),i] <- dnorm(Y[(n+1):(2*n)], X[(n+1):(2*n),3:4]%*%beta.post[i,3:4] + phi.post[i,(n+1):(2*n)], sqrt(1/taud2), log = T)
-    
-    LL[(2*n+1):(3*n),i] <- dnorm(Y[(2*n+1):(3*n)], X[(2*n+1):(3*n),5:6]%*%beta.post[i,5:6] + phi.post[i,(2*n+1):(3*n)], sqrt(1/taud3), log = T)
-    
-    LL[(3*n+1):(4*n),i] <- dnorm(Y[(3*n+1):(4*n)], X[(3*n+1):(4*n),7:8]%*%beta.post[i,7:8] + phi.post[i,(3*n+1):(4*n)], sqrt(1/taud4), log = T)
-    
-  }
-  
-  WAIC[seed] <- waic(t(LL))[[1]][3,1]
-  
-}
-
-saveRDS(WAIC, file = "Li_et_al_2015/WAIC.rds")
-
-################################################################################
 
