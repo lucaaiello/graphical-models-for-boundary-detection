@@ -154,8 +154,6 @@ This section lists the scripts used to generate each figure and table in the man
   - Bottom row:  
     `Misspecified models/Undirected/Unstructured/assessment_FDR.R`
 
----
-
 ### Supplementary Materials
 
 - **Table S1**  
