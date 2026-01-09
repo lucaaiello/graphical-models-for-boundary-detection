@@ -20,7 +20,7 @@ The simulation codes are contained in the "Misspecified models" and "CAR" folder
 1. once you access "Misspecified models" you find three folders called "Directed", "Undirected" and "Unstrucured". They refer to the data generating process.
 2. each of these three folder contains other three folders named "Directed", "Undirected" and "Unstrucured", referring to the two misspecified models and the one fitted under the true one. They contain codes for generating results for all the scenarios.
 
-Note that: in each subfolder the one called "RE_generation_X_DAGAR" contains the generated data; in each file called assessment_X.R there are some files to be called referring to the folder "runs_X", they are the results that are obtained by running the codes in "sim_gaussian_X_DAGAR.R". 
+Note that: in each subfolder the one called "RE_generation_X_DAGAR" contains the generated data; in each file called assessment_X.R there are some files to be called referring to the folder "runs_X", which you need to create and store into it the runs of each scenario simulation experiment, they are the results that are obtained by running the codes in "sim_gaussian_X_DAGAR.R". 
 
 The WAIC and rmse folder contain codes to generate tables and figures regarding WAIC and rmse. 
 
