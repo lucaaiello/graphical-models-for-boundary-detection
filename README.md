@@ -38,8 +38,6 @@ The `data/` subfolder includes the following files:
 - **`smoking.csv`**  
   Smoking prevalence for each California county.
 
----
-
 ### Model Fitting
 
 For all three empirical settings, an **unstructured disease graph** is used.
@@ -87,11 +85,9 @@ Each subfolder includes:
 - **`sim_gaussian_X_DAGAR.R`**  
   Script used to generate simulation runs. The outputs of this script should be saved in the corresponding `runs_X/` folder.
 
----
+### Model Comparison: WAIC and RMSE
 
-## Model Comparison: WAIC and RMSE
-
-The `WAIC and rmse/` folder contains scripts to compute and visualize:
+The `WAIC/` and `rmse/` folder contains scripts to compute and visualize:
 - Widely Applicable Information Criterion (WAIC),
 - Root Mean Squared Error (RMSE).
 
@@ -102,6 +98,36 @@ These scripts generate the tables and figures reported in the manuscript.
 ## CAR Model Comparison
 
 The `CAR/` folder contains code to reproduce the results in the **Supplementary Materials**, where the proposed approach is compared with the **MCAR (Multivariate Conditional Autoregressive)** specification.
+
+---
+
+## Comparison with Competing Models
+
+The repository includes two folders, `Lee_Mitchell_comparison/` and `Multivariate_Li_comparison/`, which contain the code required to reproduce comparisons with existing boundary-detection methods proposed in:
+
+- **Lee, D., & Mitchell, R. (2012)**  
+  *Boundary detection in disease mapping studies.* Biostatistics, 13(3), 415–426.
+
+- **Li, P., Banerjee, S., Hanson, T. A., & McBean, A. M. (2015)**  
+  *Bayesian models for detecting difference boundaries in areal data.* Statistica Sinica, 25(1), 385–399.
+
+### Multivariate Li et al. (2015) Comparison
+
+The `Multivariate_Li_comparison/` folder is further organized into two subfolders:
+
+- **`Li_et_al_2015/`**  
+  Implements the model proposed by Li et al. (2015).
+
+- **`Our_method/`**  
+  Implements the proposed method in this paper.
+
+These folders allow for a controlled comparison under two complementary scenarios:
+1. Data are generated under the proposed model and fitted using the independent CAR model with fixed adjacency.
+2. Data are generated under the independent CAR model with fixed adjacency and fitted using the proposed method.
+
+This setup facilitates a direct assessment of model robustness and performance under correct specification and misspecification.
+
+---
 
 Here a brief guideline on where to find code to generate the plots and tables regarding the results in the manuscript:
 
