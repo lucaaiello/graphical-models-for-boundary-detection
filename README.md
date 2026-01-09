@@ -1,31 +1,107 @@
-# graphical-models-for-boundary-detection
-This is a repository containing all the codes used in "Detecting Spatial Health Disparities Using Disease Maps"
+# Graphical Models for Boundary Detection
 
-The data analysis folder contains the data along with the script through which obtaining the results regarding the three settings under which the analysis was conducted. The data folder contains the following files: 
-- SIR_adjusted.csv: observed and expected counts of the 4 cancers along with the standardized ratio for each California county;
-- covariates.csv: for each county in the US there are reported the percentages of people under-18, over-65, with high school education, the percentage of families below the poverty threshold and the percentage of unemployment;
-- insurance.csv: for each county in the US there are reported the percentages of different insurance status (e.g. uninsured, medicalaid, insured);
-- race.csv: for each county in the US there are reported race percentages (white, black, other);
-- sex.csv: for each county in the US there are reported sex percentages (male, female);
-- smoking: smoking rates for each California county.
+This repository contains all code used in the paper  
+**“Detecting Spatial Health Disparities Using Disease Maps.”**
 
-For all of the three cases it was used the unstructured disease graph:
-- main.R: data preparation, posterior analysis
-- sampler.rcpp: metropolis within gibbs algorithm written with RcppArmadillo
+The repository is organized into three main components: data analysis, simulation studies, and model comparison.
 
-Note that into main.R and sampler.rcpp there is a parameter cvrts that can take 3 values: "adj" for covariates only into the adjacency model, "mean" only in the mean structure and "meanadj" both in the mean and in the adjacency.
- 
-The simulation codes are contained in the "Misspecified models" and "CAR" folders. The Misspecified models folder contains the codes used to produce the results shown in the manuscript. To help the reader navigate the folder the folder are nested in the following way: 
+---
 
-1. once you access "Misspecified models" you find three folders called "Directed", "Undirected" and "Unstrucured". They refer to the data generating process.
-2. each of these three folder contains other three folders named "Directed", "Undirected" and "Unstrucured", referring to the two misspecified models and the one fitted under the true one. They contain codes for generating results for all the scenarios.
+## Data Analysis
 
-Note that: in each subfolder the one called "RE_generation_X_DAGAR" contains the generated data; in each file called assessment_X.R there are some files to be called referring to the folder "runs_X", which you need to create and store into it the runs of each scenario simulation experiment, they are the results that are obtained by running the codes in "sim_gaussian_X_DAGAR.R". 
+The `data_analysis/` folder contains the data and scripts used to produce the results for the three empirical analysis settings considered in the paper.
 
-The WAIC and rmse folder contain codes to generate tables and figures regarding WAIC and rmse. 
+### Data
 
-The CAR folder contains codes to reproduce the results concerning the comparison in the supplementary materials with the MCAR specification. 
+The `data/` subfolder includes the following files:
 
+- **`SIR_adjusted.csv`**  
+  Observed and expected counts for four cancers, together with standardized incidence ratios (SIRs), for each California county.
+
+- **`covariates.csv`**  
+  County-level demographic and socioeconomic covariates for U.S. counties, including:
+  - percentage of population under 18,
+  - percentage over 65,
+  - percentage with high school education,
+  - percentage of families below the poverty threshold,
+  - unemployment rate.
+
+- **`insurance.csv`**  
+  County-level percentages of insurance status (e.g., uninsured, Medicaid, insured).
+
+- **`race.csv`**  
+  County-level race composition percentages (White, Black, Other).
+
+- **`sex.csv`**  
+  County-level sex composition percentages (Male, Female).
+
+- **`smoking.csv`**  
+  Smoking prevalence for each California county.
+
+---
+
+### Model Fitting
+
+For all three empirical settings, an **unstructured disease graph** is used.
+
+- **`main.R`**  
+  Data preprocessing, model fitting, and posterior analysis.
+
+- **`sampler.rcpp`**  
+  Metropolis-within-Gibbs MCMC sampler implemented in **RcppArmadillo**.
+
+Both `main.R` and `sampler.rcpp` include a parameter `cvrts`, which controls the role of covariates in the model:
+- `"adj"`: covariates enter only the adjacency (boundary) model;
+- `"mean"`: covariates enter only the mean structure;
+- `"meanadj"`: covariates enter both the mean and adjacency components.
+
+---
+
+## Simulation Studies
+
+Simulation code is contained in the `Misspecified models/` and `CAR/` folders.
+
+### Misspecified Models
+
+The `Misspecified models/` folder contains all code used to produce the simulation results presented in the manuscript. The folder structure is nested as follows:
+
+1. The top level contains three folders:
+   - `Directed`
+   - `Undirected`
+   - `Unstructured`  
+   These correspond to the **data-generating process (DGP)**.
+
+2. Each of these folders contains three subfolders:
+   - `Directed`
+   - `Undirected`
+   - `Unstructured`  
+   These correspond to the **fitted models**, including the two misspecified models and the correctly specified one.
+
+Each subfolder includes:
+- **`RE_generation_X_DAGAR/`**  
+  Generated random effects (synthetic data) for the corresponding scenario.
+
+- **`assessment_X.R`**  
+  Scripts for evaluating model performance. These scripts expect results to be stored in a folder named `runs_X/`, which must be created manually.
+
+- **`sim_gaussian_X_DAGAR.R`**  
+  Script used to generate simulation runs. The outputs of this script should be saved in the corresponding `runs_X/` folder.
+
+---
+
+## Model Comparison: WAIC and RMSE
+
+The `WAIC and rmse/` folder contains scripts to compute and visualize:
+- Widely Applicable Information Criterion (WAIC),
+- Root Mean Squared Error (RMSE).
+
+These scripts generate the tables and figures reported in the manuscript.
+
+---
+
+## CAR Model Comparison
+
+The `CAR/` folder contains code to reproduce the results in the **Supplementary Materials**, where the proposed approach is compared with the **MCAR (Multivariate Conditional Autoregressive)** specification.
 
 Here a brief guideline on where to find code to generate the plots and tables regarding the results in the manuscript:
 
