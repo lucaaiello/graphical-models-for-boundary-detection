@@ -3,7 +3,7 @@
 This repository contains all code used in the paper  
 **“Detecting Spatial Health Disparities Using Disease Maps.”**
 
-The repository is organized into three main components: data analysis, simulation studies, and model comparison.
+The repository is organized into two main parts: data analysis and simulation studies.
 
 ---
 
