@@ -1,18 +1,8 @@
-// [[Rcpp::depends(RcppEigen)]]
-// [[Rcpp::depends(RcppGSL)]]
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // #include <Rcpp.h>
 #include <RcppArmadillo.h>
 using namespace Rcpp;
-
-#include <RcppEigen.h>
-#include <RcppGSL.h>
-
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_linalg.h>
-#include <gsl/gsl_cdf.h>
 
 #include <random>
 #include <vector>
