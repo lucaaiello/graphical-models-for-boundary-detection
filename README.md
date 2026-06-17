@@ -20,8 +20,7 @@ toolchain is required. On Windows this usually means Rtools; on macOS this usual
 means Xcode command line tools; on Linux this usually means the system compiler
 toolchain.
 
-The C++ sampler files use `RcppArmadillo` and do not require `RcppGSL`,
-`RcppEigen`, or the GNU Scientific Library (GSL).
+The C++ sampler files use `RcppArmadillo`.
 
 Current legacy spatial dependency note: several scripts still reference `maptools`,
 `rgeos`, and `gpclib`. These packages are archived and are not installed by
