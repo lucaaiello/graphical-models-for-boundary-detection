@@ -38,7 +38,6 @@ cran_packages <- c(
   "readr",
   "rmapshaper",
   "sf",
-  "sp",
   "spdep",
   "stringr",
   "tictoc",
@@ -65,10 +64,8 @@ if (length(remaining) > 0) {
 }
 
 message(
-  "Note: current scripts still reference archived spatial packages ",
-  "maptools, rgeos, and gpclib. These are not installed by default because ",
-  "they are no longer on CRAN. The planned reproducibility cleanup replaces ",
-  "these uses with sf-based code."
+  "Note: the archived maptools, rgeos, and gpclib packages have been replaced ",
+  "with sf-based polygon construction, centroid extraction, and boundary plotting."
 )
 
 message(

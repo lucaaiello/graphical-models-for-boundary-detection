@@ -1,0 +1,11 @@
+
+# large results files
+data analysis/*.RData
+
+# MCMC outputs at any depth inside any runs_* directory
+**/runs_*/**/*.rds
+
+# local notes and manuscript copies
+roadmap.txt
+Boundary_Analysis_Adjacency_Modeling_JASA.pdf
+Boundary_Analysis_Adjacency_Modeling_JASA_supp.pdf

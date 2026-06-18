@@ -1,10 +1,9 @@
 rm(list = ls())
-setwd("C:/Dati/Dottorato/Visiting UCLA/Spatial Disease Mapping/Rejection/New_simulations")
 
 library(maps)
-ca.county <- map("county","california", fill=TRUE, plot=FALSE)
+ca.county <- maps::map("county", "california", fill = TRUE, plot = FALSE)
 library(spdep)
-library(maptools)
+library(sf)
 library(mapproj)
 library(stringr)
 library(classInt)
@@ -19,9 +18,11 @@ library(caret)
 library(matrixStats)
 library(monomvn)
 
-county.ID <- sapply(strsplit(ca.county$names, ","), function(x) x[2])
-ca.poly <- map2SpatialPolygons(ca.county, IDs=county.ID)
-ca.coords <- coordinates(ca.poly)
+ca.poly <- st_as_sf(ca.county)
+st_crs(ca.poly) <- NA
+county.ID <- sub("^.*,", "", ca.poly$ID)
+ca.poly$county <- county.ID
+ca.coords <- st_coordinates(st_centroid(st_geometry(ca.poly)))
 
 n_county <- length(county.ID)
 
@@ -55,7 +56,7 @@ Z1 <- readRDS("CAR/RE_generation_CAR/Z1.rds")
 Y <- readRDS("CAR/RE_generation_CAR/Y_list.rds")
 
 ## Adjacency matrix
-ca.neighbors <- poly2nb(ca.poly)
+ca.neighbors <- poly2nb(ca.poly, row.names = county.ID)
 n <- length(ca.neighbors)
 
 Adj <- sapply(ca.neighbors,function(x,n) {v=rep(0,n);v[x]=1;v},n)
