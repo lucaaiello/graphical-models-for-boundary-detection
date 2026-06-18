@@ -174,7 +174,6 @@ df$moran_value <- moran_value
 df$r <- rep(1:11, 4)
 df$cancer <- factor(df$cancer, levels = c("Lung", "Esophageal", "Larynx", "Colorectum"))
 
-x11()
 ggplot(df, aes(r, moran_value)) + geom_point(size = 3) +
   ylab("Moran's I") + facet_wrap(~cancer, nrow = 1, ncol = 4) + theme_bw() +
   scale_x_continuous(breaks = 1:11) +
@@ -300,9 +299,11 @@ Z3 <- sd_diff_mat(X3[,6],Minc)
 Y <- c(Y1,Y2,Y3,Y4)
 E <- c(E1, E2, E3, E4)
 
-cvrts = "adj" # "adj" for covariates only in the adjacency
-              # "mean" for covariates only in the mean structure reproducing Gao et al. (2023) model
-              # "meanadj" for covariates both in the mean and in the adjacency model                   
+cvrts <- "adj" # "adj" for covariates only in the adjacency
+               # "mean" for covariates only in the mean structure reproducing Gao et al. (2023) model
+               # "meanadj" for covariates both in the mean and in the adjacency model
+
+stopifnot(cvrts %in% c("adj", "mean", "meanadj"))
             
 if (cvrts == "mean" | cvrts == "meanadj"){
   X <- as.matrix(bdiag(bdiag(X1[,c(1,2,4,6)], X2[,c(1,2,4,6)]),
@@ -323,20 +324,16 @@ library(tictoc)
 
 tic()
 
-mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1, Z2=Z2, Z3=Z3, E=E, cvrts = "adj",
+mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1, Z2=Z2, Z3=Z3, E=E, cvrts = cvrts,
                         q=4, Winc=Winc, Minc=Minc,
                         alpha=1, n_atoms=15,
                         runs=10000, burn=50000, thin=5)
 
 toc()
 
-# MODEL VARIANT INPUT ----------------------------------------------------------
-# results_adj.RData     -> Table S16; Figures 5-9 and S2-S6
-# results_meanadj.RData -> Table S17; Figures S8-S17
-# results_mean.RData    -> Table S18; Figures S18-S25
-load("data analysis/results_mean.RData")
+load("data analysis/results_adj.RData")
 
-names(mcmc_samples) <- c("beta", "phi", "theta", "u", "rho", "V", "r", 
+names(mcmc_samples) <- c("beta", "phi", "theta", "u", "rho", "V", "r",
                          "F_r", "eta", "tau", "W1", "W2", "W3", "W4", "A")
 
 samples.mcmc <- mcmc.list(mcmc(data.frame(beta = mcmc_samples$beta,
@@ -350,22 +347,22 @@ samples.mcmc <- mcmc.list(mcmc(data.frame(beta = mcmc_samples$beta,
 
 # RESULTS: Tables S16-S18 ------------------------------------------------------
 # Posterior means, standard deviations, and Monte Carlo standard errors.
-# The table number depends on the result file loaded above.
+# cvrts = "adj": Table S16
+# cvrts = "meanadj": Table S17
+# cvrts = "mean": Table S18
 
-# adj: S16
-cbind(round(apply(as.matrix(samples.mcmc[[1]][,c(1:19,267)]),2,mean),3),
-      round(apply(as.matrix(samples.mcmc[[1]][,c(1:19,267)]),2,sd),3))
+table_columns <- grep(
+  "^(beta\\.|theta\\.|tau$)",
+  colnames(samples.mcmc[[1]])
+)
+table_samples <- as.matrix(samples.mcmc[[1]][, table_columns, drop = FALSE])
 
-# meanadj: S17, mean: S18
-# cbind(round(apply(as.matrix(samples.mcmc[[1]][,c(1:31,279)]),2,mean),3),
-#       round(apply(as.matrix(samples.mcmc[[1]][,c(1:31,279)]),2,sd),3))
+cbind(round(apply(table_samples, 2, mean), 3),
+      round(apply(table_samples, 2, sd), 3))
 
 library(mcmcse)
 
-# adj: S16
-round(mcse.mat(x = as.data.frame(samples.mcmc[[1]][,c(1:19,267)]), method = "bm", g = NULL),3)
-# meanadj: S17, mean: S18
-# round(mcse.mat(x = as.data.frame(samples.mcmc[[1]][,c(1:31,279)]), method = "bm", g = NULL),3)
+round(mcse.mat(x = as.data.frame(table_samples), method = "bm", g = NULL), 3)
 
 ess(as.data.frame(samples.mcmc[[1]]))
 
@@ -386,11 +383,10 @@ minESS(p = 293, alpha = .05, ess = 1847.068)
 # minESS(p = 293, alpha = .05, eps = .05) 
 # minESS(p = 293, alpha = .05, ess = 1941.622)
 
-
 # RESULTS: Supplementary HPD figures ------------------------------------------
-# results_adj:     Figures S3-S6
-# results_meanadj: Figures S9-S12
-# results_mean:    Figures S18-S21
+# cvrts = "adj": Figures S3-S6
+# cvrts = "meanadj": Figures S9-S12
+# cvrts = "mean": Figures S18-S21
 # Chain diagnostics and posterior intervals
 
 samples.ggs <- ggs(samples.mcmc, keep_original_order = TRUE)
@@ -447,31 +443,45 @@ ggs_caterpillar(samples.ggs, family = "rho") +
   theme_bw() +
   theme(axis.text=element_text(size=15),axis.title=element_text(size=15)) 
 
-samples.eta <- samples.ggs[samples.ggs$Parameter %in% c(paste0("eta.", 1:12)), ]  
+if (cvrts != "mean") {
+  samples.eta <- samples.ggs[
+    samples.ggs$Parameter %in% paste0("eta.", 1:12),
+  ]
 
-ggs_caterpillar(samples.eta) + 
-  scale_y_discrete(labels = function(labels) greek_label(labels, "eta")) + 
-  theme_bw() +
-  theme(axis.text=element_text(size=15),axis.title=element_text(size=15)) 
+  print(
+    ggs_caterpillar(samples.eta) +
+      scale_y_discrete(labels = function(labels) greek_label(labels, "eta")) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 15),
+            axis.title = element_text(size = 15))
+  )
 
-ggs_caterpillar(samples.ggs, family = "A") + 
-  scale_y_discrete(labels = function(labels) greek_label(labels, "A")) +
-  theme_bw() +
-  theme(axis.text=element_text(size=15),axis.title=element_text(size=15)) 
+  print(
+    ggs_caterpillar(samples.ggs, family = "A") +
+      scale_y_discrete(labels = function(labels) greek_label(labels, "A")) +
+      theme_bw() +
+      theme(axis.text = element_text(size = 15),
+            axis.title = element_text(size = 15))
+  )
+}
 
 # A parameters
 
-AL <- array(0,dim = c(4,4,10000))
+n_draws <- nrow(samples.mcmc[[1]])
 
-AAT <- array(0,dim = c(4,4,10000))
+AL <- array(0, dim = c(4, 4, n_draws))
 
-A_aux <- matrix(0,nrow = 10000, ncol = 10)
+AAT <- array(0, dim = c(4, 4, n_draws))
+
+A_aux <- matrix(0, nrow = n_draws, ncol = 10)
+
+A_columns <- grep("^A\\.", colnames(samples.mcmc[[1]]))
 
 for (g in 1:dim(AL)[3]) {
-  AL[,,g][lower.tri(AL[,,g], diag = TRUE)] <- samples.mcmc[[1]][g,284:293]
-  # AL[,,g][lower.tri(AL[,,g], diag = TRUE)] <- samples.mcmc[[1]][g,296:305]
+  AL[,,g][lower.tri(AL[,,g], diag = TRUE)] <-
+    as.numeric(samples.mcmc[[1]][g, A_columns])
   AAT[,,g] <- AL[,,g]%*%t(AL[,,g])
-  A_aux[g,] <- AAT[,,g][lower.tri(AL[,,g], diag = TRUE)]                        
+  A_aux[g,] <- AAT[,,g][lower.tri(AL[,,g], diag = TRUE)]
 }
 
 A_aux.mcmc <- mcmc.list(mcmc(data.frame(AAT = A_aux)))
@@ -621,11 +631,11 @@ library(rmapshaper)
 bord <- ca_counties_sf %>% ms_innerlines()
 
 # RESULTS: Disease-specific difference boundaries -----------------------------
-# results_adj: Main Figures 5-6
-# results_meanadj: Figures S13-S14
-# results_mean: Figures S22-S23
+# cvrts = "adj": Main Figures 5-6
+# cvrts = "meanadj": Figures S13-S14
+# cvrts = "mean": Figures S22-S23
 # This block computes FDR quantities/thresholds and draws the boundary maps.
-# difference boundaries for each cancer individually
+# Difference boundaries for each cancer
 
 bd <- function(x){
   diff_b <- NULL
@@ -687,29 +697,28 @@ for(i in 1:length(threshold1)){
 }
 
 # RESULT: FDR curves -----------------------------------------------------------
-# results_adj: Main Figure 5
-# results_meanadj: Figure S13
-# results_mean: Figure S22
+# cvrts = "adj": Main Figure 5
+# cvrts = "meanadj": Figure S13
+# cvrts = "mean": Figure S22
 # FDR plot
-library(reshape2)
 
-df <- data.frame(
-  x = 1:length(FDR_est1),
-  FDR_est1 = FDR_est1,
-  FDR_est2 = FDR_est2,
-  FDR_est3 = FDR_est3,
-  FDR_est4 = FDR_est4
+FDR_plot_df <- data.frame(
+  selected_edges = rep(T_edge1, 4),
+  estimated_FDR = c(FDR_est1, FDR_est2, FDR_est3, FDR_est4),
+  cancer = factor(
+    rep(c("Lung", "Esophageal", "Larynx", "Colorectal"),
+        each = length(T_edge1)),
+    levels = c("Lung", "Esophageal", "Larynx", "Colorectal")
+  )
 )
 
-# Reshape the data to long format
-df_long <- melt(df, id.vars = "x", variable.name = "Variable", value.name = "Value")
-
-# Plot the data
-ggplot(df_long, aes(x = x, y = Value, linetype = Variable)) +
+ggplot(
+  FDR_plot_df,
+  aes(x = selected_edges, y = estimated_FDR, linetype = cancer)
+) +
   geom_line(size = 2) +
   labs(x = "Number of edges selected", y = "Estimated FDR") +
   scale_linetype_manual(values = c("solid", "dashed", "dotted", "dotdash"),
-                        labels = c("Lung", "Esophageal", "Larynx", "Colorectal"),
                         name = "Cancer") +
   geom_hline(yintercept = 0.05, color = "red", size = 2) +
   theme_bw() +
@@ -960,10 +969,10 @@ path[[133]] <- path[[133]][-1,]
 
 
 # RESULTS: Shared difference-boundary maps ------------------------------------
-# results_adj: Main Figure 7
-# results_meanadj: Figure S15
-# results_mean: Figure S24
-# Shared difference boundary for each pair of cancers
+# cvrts = "adj": Main Figure 7
+# cvrts = "meanadj": Figure S15
+# cvrts = "mean": Figure S24
+# Shared difference boundaries for each pair of cancers
 
 bc <- function(x){
   diff_bc <- NULL
@@ -1224,10 +1233,10 @@ ggarrange(edge_plotc12, edge_plotc13, edge_plotc14,
 #dev.off()
 
 # RESULTS: Mutual cross-difference-boundary maps -------------------------------
-# results_adj: Main Figure 8
-# results_meanadj: Figure S16
-# results_mean: Figure S25
-# Mutual cross diseases difference boundary
+# cvrts = "adj": Main Figure 8
+# cvrts = "meanadj": Figure S16
+# cvrts = "mean": Figure S25
+# Mutual cross-disease difference boundaries
 
 bc1 <- function(x){
   diff_bc1 <- NULL
@@ -1456,10 +1465,12 @@ ggarrange(edge_plot12, edge_plot13, edge_plot14,
           edge_plot23, edge_plot24, edge_plot34, nrow = 2, ncol = 3)
 
 # RESULTS: Non-adjacency maps --------------------------------------------------
-# results_adj: Main Figure 9
-# results_meanadj: Figure S17
-# Not applicable to results_mean because that model keeps adjacency fixed.
+# cvrts = "adj": Main Figure 9
+# cvrts = "meanadj": Figure S17
+# Not applicable when cvrts = "mean" because that model keeps adjacency fixed.
 # Adjacency modeling
+
+if (cvrts != "mean") {
 
 W1 <- mcmc_samples$W1
 W2 <- mcmc_samples$W2
@@ -1583,13 +1594,20 @@ for(i in 1:nrow(neighbor_list0)){
 
 adj_plot4
 
-ggarrange(adj_plot1,adj_plot2,adj_plot3,adj_plot4, nrow = 1, ncol = 4)
+print(ggarrange(
+  adj_plot1, adj_plot2, adj_plot3, adj_plot4,
+  nrow = 1, ncol = 4
+))
+
+}
 
 # RESULTS: Adjacency-cardinality traceplots ------------------------------------
-# results_adj: Figure S2
-# results_meanadj: Figure S8
-# Not applicable to results_mean because that model keeps adjacency fixed.
+# cvrts = "adj": Figure S2
+# cvrts = "meanadj": Figure S8
+# Not applicable when cvrts = "mean" because that model keeps adjacency fixed.
 # Graph cardinality
+
+if (cvrts != "mean") {
 
 graph_cardinality <- function(W) {
   sum(W[upper.tri(W)] != 0)
@@ -1620,15 +1638,18 @@ trace_df <- rbind(
   )
 )
 
-ggplot(trace_df, aes(x = iter, y = edges)) +
-  geom_line(linewidth = 0.4) +
-  facet_wrap(~ cancer, scales = "free_y", ncol = 2) +
-  labs(
-    x = "MCMC iteration",
-    y = "Number of edges"
-  ) +
-  theme_bw() +
-  theme(
-    strip.background = element_rect(fill = "grey90"),
-    strip.text = element_text(face = "bold")
-  ) 
+print(
+  ggplot(trace_df, aes(x = iter, y = edges)) +
+    geom_line(linewidth = 0.4) +
+    facet_wrap(~ cancer, scales = "free_y", ncol = 2) +
+    labs(
+      x = "MCMC iteration",
+      y = "Number of edges"
+    ) +
+    theme_bw() +
+    theme(
+      strip.background = element_rect(fill = "grey90"),
+      strip.text = element_text(face = "bold")
+    )
+)
+}
