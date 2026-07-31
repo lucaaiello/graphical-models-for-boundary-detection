@@ -6,6 +6,13 @@
 # regenerated only because the stored pointwise file lacks predictive medians;
 # every previously stored pointwise quantity is checked before new outputs are
 # written.
+#
+# Published result index (line numbers are also documented in README.md):
+#   Main Table 2: lines 413--476
+#   Supplementary Table S19: lines 477--550
+#   Supplementary Figure S28: lines 551--665
+# Run this complete script after posterior_predictive_sensitivity.R: the result
+# blocks use the validated pointwise posterior predictive data built above.
 
 rm(list = ls())
 
@@ -403,7 +410,8 @@ observation_ppc$specification <- as.character(observation_ppc$specification)
 observation_ppc$cancer <- as.character(observation_ppc$cancer)
 write_csv(observation_ppc, "observation_level_ppc.csv")
 
-# Main-manuscript observation-level summary -----------------------------------
+# RESULT: Main Table 2 (lines 413--476) ----------------------------------------
+# Writes observation_ppc_summary.csv and observation_ppc_summary.tex.
 
 observation_summary <- do.call(
   rbind,
@@ -466,7 +474,8 @@ writeLines(
   useBytes = TRUE
 )
 
-# Supplementary unusual-observation table -------------------------------------
+# RESULT: Supplementary Table S19 (lines 477--550) -----------------------------
+# Writes unusual_observation_ppc.csv and unusual_observation_ppc.tex.
 
 unusual <- observation_ppc[
   observation_ppc$two_sided_mid_tail_probability < unusual_threshold,
@@ -539,7 +548,8 @@ writeLines(
   useBytes = TRUE
 )
 
-# Twelve-panel observed-versus-fitted figure ----------------------------------
+# RESULT: Supplementary Figure S28 (lines 551--665) ----------------------------
+# Builds and saves observed_vs_fitted_ppc.pdf and its PNG counterpart.
 
 plot_data <- observation_ppc
 plot_data$specification <- factor(

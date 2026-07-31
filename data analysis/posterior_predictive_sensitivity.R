@@ -17,6 +17,14 @@
 # The FDR implementation below reproduces main.R exactly: it considers the
 # first 135 ordered thresholds, estimates FDR using all probabilities at or
 # above each threshold (including ties), and uses zeta = 0.05.
+#
+# Published result index (line numbers are also documented in README.md):
+#   Main Table 1: lines 1519--1603
+#   Supplementary Figure S25: lines 1604--1740
+#   Supplementary Figure S26: lines 1741--1900
+#   Supplementary Figure S27: lines 1165--1266
+# Run the complete script from the repository root: each result block depends
+# on the common input validation and posterior calculations above it.
 
 rm(list = ls())
 
@@ -1154,7 +1162,8 @@ primary_unusual_path <- write_output_text(
 )
 cat(paste(primary_unusual_lines, collapse = "\n"), "\n\n")
 
-# Publication-ready PPC figure --------------------------------------------------
+# RESULT: Supplementary Figure S27 (lines 1165--1266) --------------------------
+# Builds and saves ppc_three_specifications.pdf and its PNG counterpart.
 
 specification_levels <- vapply(
   specification_definitions,
@@ -1507,7 +1516,8 @@ fixed_edge_changes_path <- write_output_csv(
   "fixed_adjacency_edge_changes.csv"
 )
 
-# Main sensitivity table --------------------------------------------------------
+# RESULT: Main Table 1 (lines 1519--1603) --------------------------------------
+# Writes main_sensitivity_table.csv and main_sensitivity_table.tex.
 
 clean_overlap <- boundary_overlap_summary[
   boundary_overlap_summary$specification_A == "Mean--Adjacency" &
@@ -1591,7 +1601,8 @@ main_sensitivity_tex_path <- write_output_text(
   "main_sensitivity_table.tex"
 )
 
-# Boundary-probability agreement figure ----------------------------------------
+# RESULT: Supplementary Figure S25 (lines 1604--1740) --------------------------
+# Builds and saves boundary_probability_agreement.pdf and its PNG counterpart.
 
 agreement_plot_rows <- list()
 agreement_annotation_rows <- list()
@@ -1727,7 +1738,8 @@ ggplot2::ggsave(
   dpi = 300
 )
 
-# Adaptive-versus-fixed boundary classification maps ---------------------------
+# RESULT: Supplementary Figure S26 (lines 1741--1900) --------------------------
+# Builds and saves adaptive_vs_fixed_boundary_maps.pdf and its PNG counterpart.
 
 california_map <- sf::st_as_sf(
   maps::map("county", "california", fill = TRUE, plot = FALSE)
