@@ -44,7 +44,11 @@ intended as a stable public API.
 | Script type | Required inputs | Anticipated outputs |
 |---|---|---|
 | [`install.R`](install.R) | An R installation, internet access, and a C/C++ toolchain | Installs the required R packages |
-| [`data analysis/main.R`](<data analysis/main.R>) | The six CSV files in `data analysis/data/` and [`sampler.cpp`](<data analysis/sampler.cpp>) | Prepares the empirical data, fits the selected model, and directly creates the posterior summaries, diagnostics, FDR curves, and boundary maps in the active R graphics device |
+| [`data analysis/main.R`](<data analysis/main.R>) | The six CSV files in `data analysis/data/` and [`sampler.cpp`](<data analysis/sampler.cpp>) | Prepares the empirical data, fits the selected model, saves the completed fit for downstream analyses, and creates posterior summaries and figures in the active R graphics device |
+| [`data analysis/posterior_predictive_sensitivity.R`](<data analysis/posterior_predictive_sensitivity.R>) | Completed `adj`, `meanadj`, and `mean` fits produced by `main.R` | Computes global posterior predictive checks, boundary and fitted-risk sensitivity summaries, and Figures S25--S27 |
+| [`data analysis/complete_observation_level_ppc.R`](<data analysis/complete_observation_level_ppc.R>) | The three completed fits and the global PPC summaries | Completes county--cancer posterior predictive checks and creates Table S19 and Figure S28 |
+| [`data analysis/standardize_ppc_specification_labels.R`](<data analysis/standardize_ppc_specification_labels.R>) | The generated sensitivity/PPC output directory | Optionally standardizes presentation labels and redraws the completed figures without changing numerical results |
+| [`data analysis/validate_ppc_revision_outputs.R`](<data analysis/validate_ppc_revision_outputs.R>) | The generated sensitivity/PPC outputs | Checks numerical, labeling, boundary-selection, and manuscript-table consistency |
 | `sim_*.R` simulation generators | The scenario settings embedded in the script, the corresponding C++ sampler, and an existing matching `runs_*` directory | One `mcmc_samples_<seed>.rds` file per replicate, plus the simulated truth and design objects saved in the matching `RE_generation_*` directory |
 | `assessment*.R` | The matching `RE_generation_*` objects and `mcmc_samples_<seed>.rds` files | Prints sensitivity, specificity, and adjacency-recovery summaries; non-FDR assessment scripts also save one WAIC vector |
 | `assessment*_FDR.R` | The matching generated truth and saved MCMC replicates | Prints FDR-based sensitivity and specificity summaries |
@@ -53,10 +57,10 @@ intended as a stable public API.
 | WAIC comparison scripts | The corresponding WAIC vectors | Draws the WAIC density plots used in Figure S1 |
 | Comparison folders | Their `sim_*.R` or comparison generator followed by the matching `assessment.R` | Produces the Lee & Mitchell and Li et al. comparison summaries |
 
-The empirical script displays figures and tables interactively; it does not
-automatically write them to image or table files. They can be saved from the R
-graphics device or by wrapping the relevant plotting calls in `pdf()`,
-`png()`, or `ggsave()`.
+The empirical script displays its original figures and tables interactively.
+The sensitivity and posterior predictive scripts write their figures, tables,
+and supporting summaries to
+`data analysis/posterior_predictive_sensitivity_output/`.
 
 ### Low-level sampler interface
 
@@ -277,16 +281,30 @@ activate the adjacency-modeling extension developed in this paper.
 
 To reproduce an empirical setting, assign the desired value to `cvrts` near the
 model-fitting block and run `data analysis/main.R` from the beginning. The
-script prepares the inputs, compiles the sampler, fits that model, and passes
-the returned `mcmc_samples` object directly to all subsequent summaries and
-plots in one continuous workflow:
+script prepares the inputs, compiles the sampler, fits that model, passes the
+returned posterior draws directly to all subsequent summaries and plots, and
+saves the completed fit under a setting-specific name:
 
-- `cvrts = "adj"` produces main Figures 5--9, Table S16, and Figures S2--S6;
-- `cvrts = "meanadj"` produces Table S17 and Figures S8--S17;
-- `cvrts = "mean"` produces Table S18 and Figures S18--S25.
+- `cvrts = "adj"` produces main Figures 5--8, Table S16, and Figures S2--S6;
+- `cvrts = "meanadj"` produces Table S17 and Figures S8--S16;
+- `cvrts = "mean"` produces Table S18 and Figures S17--S24.
 
 Figures 1--3 are exploratory displays produced by the same script and do not
 depend on the selected model variant.
+
+For the three-specification sensitivity and posterior predictive analysis, run
+`main.R` once for each of `adj`, `meanadj`, and `mean`, and then run:
+
+```r
+source("data analysis/posterior_predictive_sensitivity.R")
+source("data analysis/complete_observation_level_ppc.R")
+source("data analysis/validate_ppc_revision_outputs.R")
+```
+
+The downstream scripts locate the three completed fits automatically. The
+optional `standardize_ppc_specification_labels.R` script redraws the generated
+figures with the manuscript-facing labels `Adjacency`, `Mean--Adjacency`, and
+`Mean` while verifying that numerical CSV results do not change.
 
 ### Result index for `data analysis/main.R`
 
@@ -296,7 +314,7 @@ with `# RESULT:` or `# RESULTS:` so that the relevant blocks remain easy to find
 if later edits shift the line numbers.
 
 Shared data preparation, county ordering, model-matrix construction, and model
-fitting occur in lines 1--345. Set `cvrts` at line 303 and run the script from
+fitting occur in lines 1--364. Set `cvrts` at line 302 and run the script from
 the beginning; the resulting posterior samples flow directly into the
 variant-appropriate tables and figures below.
 
@@ -304,51 +322,44 @@ variant-appropriate tables and figures below.
 
 | Result | Current lines in `data analysis/main.R` |
 |---|---:|
-| Figure 1: cancer SIR maps | 490--559 |
+| Figure 1: cancer SIR maps | 535--609 |
 | Figure 2: Moran's I | 137--183 |
-| Figure 3: smoking, elderly-population, and poverty maps | 561--607 |
+| Figure 3: smoking, elderly-population, and poverty maps | 610--667 |
 | Figure 4: disease-graph schematic | Not generated by `main.R` |
-| Figure 5: estimated FDR curves | 681--713 |
-| Figure 6: disease-specific difference-boundary maps | 615--868 |
-| Figure 7: shared difference-boundary maps | 953--1215 |
-| Figure 8: mutual cross-difference-boundary maps | 1217--1448 |
-| Figure 9: non-adjacency maps | 1449--1582 |
+| Figure 5: disease-specific difference-boundary maps | 668--1009 |
+| Figure 6: shared difference-boundary maps | 1011--1275 |
+| Figure 7: mutual cross-difference-boundary maps | 1277--1510 |
+| Figure 8: non-adjacency maps | 1512--1649 |
+| Tables 1--2: sensitivity and observation-level PPC summaries | `posterior_predictive_sensitivity.R` and `complete_observation_level_ppc.R` |
 
 #### Supplementary material
 
 | Result | Model setting | Current lines in `data analysis/main.R` |
 |---|---|---:|
-| Figure S2 | `cvrts = "adj"` | 1584--1633 |
-| Table S16 | `cvrts = "adj"` | 347--366 |
-| Figure S3 | `cvrts = "adj"` | 383--391 |
-| Figure S4 | `cvrts = "adj"` | 393--416 |
-| Figure S5 | `cvrts = "adj"` | 418--426 |
-| Figure S6 | `cvrts = "adj"` | 428--448 |
+| Figure S2 | `cvrts = "adj"` | 734--767 |
+| Table S16 | `cvrts = "adj"` | 375--411 |
+| Figures S3--S6 | `cvrts = "adj"` | 413--524 |
 | Figure S7 | -- | Not generated by `main.R` |
-| Figure S8 | `cvrts = "meanadj"` | 1584--1633 |
-| Table S17 | `cvrts = "meanadj"` | 347--366 |
-| Figure S9 | `cvrts = "meanadj"` | 383--391 |
-| Figure S10 | `cvrts = "meanadj"` | 393--416 |
-| Figure S11 | `cvrts = "meanadj"` | 418--426 |
-| Figure S12 | `cvrts = "meanadj"` | 428--448 |
-| Figure S13 | `cvrts = "meanadj"` | 681--713 |
-| Figure S14 | `cvrts = "meanadj"` | 615--868 |
-| Figure S15 | `cvrts = "meanadj"` | 953--1215 |
-| Figure S16 | `cvrts = "meanadj"` | 1217--1448 |
-| Figure S17 | `cvrts = "meanadj"` | 1449--1582 |
-| Table S18 | `cvrts = "mean"` | 347--366 |
-| Figure S18 | `cvrts = "mean"` | 383--391 |
-| Figure S19 | `cvrts = "mean"` | 393--416 |
-| Figure S20 | `cvrts = "mean"` | 418--426 |
-| Figure S21 | `cvrts = "mean"` | 450--479 |
-| Figure S22 | `cvrts = "mean"` | 681--713 |
-| Figure S23 | `cvrts = "mean"` | 615--868 |
-| Figure S24 | `cvrts = "mean"` | 953--1215 |
-| Figure S25 | `cvrts = "mean"` | 1217--1448 |
+| Table S17 | `cvrts = "meanadj"` | 375--411 |
+| Figures S8--S11 | `cvrts = "meanadj"` | 413--524 |
+| Figure S12 | `cvrts = "meanadj"` | 734--767 |
+| Figure S13 | `cvrts = "meanadj"` | 668--1009 |
+| Figure S14 | `cvrts = "meanadj"` | 1011--1275 |
+| Figure S15 | `cvrts = "meanadj"` | 1277--1510 |
+| Figure S16 | `cvrts = "meanadj"` | 1512--1649 |
+| Table S18 | `cvrts = "mean"` | 375--411 |
+| Figures S17--S20 | `cvrts = "mean"` | 413--524 |
+| Figure S21 | `cvrts = "mean"` | 734--767 |
+| Figure S22 | `cvrts = "mean"` | 668--1009 |
+| Figure S23 | `cvrts = "mean"` | 1011--1275 |
+| Figure S24 | `cvrts = "mean"` | 1277--1510 |
+| Figures S25--S27 | all three settings | `posterior_predictive_sensitivity.R` |
+| Figure S28 and Table S19 | all three settings | `complete_observation_level_ppc.R` |
 
-Figures S2 and S8 are adjacency-cardinality traceplots and therefore apply only
-to the two models that estimate adjacency. Similarly, the non-adjacency block is
-skipped automatically when `cvrts = "mean"`.
+The non-adjacency block is skipped automatically when `cvrts = "mean"`, which
+keeps geographic adjacency fixed. The graph-cardinality traces beginning at
+line 1651 are optional interactive diagnostics and are not figures in the
+current manuscript or Supplementary Material.
 
 ---
 
@@ -428,9 +439,8 @@ This setup facilitates a direct assessment of model robustness and performance u
 
 ## Reproducibility: figures and tables
 
-This mapping corresponds to the current main manuscript (Figures 1--9 and no
-numbered tables) and supplementary material (Tables S1--S18 and Figures
-S1--S25).
+This mapping corresponds to the current main manuscript (Figures 1--8 and
+Tables 1--2) and supplementary material (Tables S1--S19 and Figures S1--S28).
 
 ### Main manuscript
 
@@ -440,16 +450,20 @@ S1--S25).
 | Figure 2 | Moran's I by neighbor order | [`data analysis/main.R`](<data analysis/main.R>), using [`SIR_adjusted.csv`](<data analysis/data/SIR_adjusted.csv>) |
 | Figure 3 | Smoking, elderly-population, and poverty maps | [`data analysis/main.R`](<data analysis/main.R>), using [`smoking.csv`](<data analysis/data/smoking.csv>) and [`covariates.csv`](<data analysis/data/covariates.csv>) |
 | Figure 4 | Three disease-graph schematics | No generating script or source graphic is currently present in the repository |
-| Figure 5 | Estimated FDR curves | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
-| Figure 6 | Disease-specific difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
-| Figure 7 | Shared difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
-| Figure 8 | Mutual cross-difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
-| Figure 9 | Estimated non-adjacencies | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Figure 5 | Disease-specific difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Figure 6 | Shared difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Figure 7 | Mutual cross-difference boundaries | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Figure 8 | Estimated non-adjacencies | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Table 1 | Disease-specific boundary sensitivity across the three specifications | [`posterior_predictive_sensitivity.R`](<data analysis/posterior_predictive_sensitivity.R>), which writes `main_sensitivity_table.csv` and `.tex` |
+| Table 2 | Observation-level posterior predictive summaries | [`complete_observation_level_ppc.R`](<data analysis/complete_observation_level_ppc.R>), which writes `observation_ppc_summary.csv` and `.tex` |
 
 The empirical workflow is end to end: [`data analysis/main.R`](<data analysis/main.R>)
 constructs the model inputs, calls the MCMC implementation in
 [`data analysis/sampler.cpp`](<data analysis/sampler.cpp>), and immediately uses
 the returned posterior samples to produce the requested summaries and figures.
+After all three settings have been run, the sensitivity and posterior
+predictive scripts automatically use those completed fits to generate the two
+main-manuscript tables and the additional supplementary results.
 
 ### Supplementary tables
 
@@ -472,6 +486,7 @@ the returned posterior samples to produce the requested summaries and figures.
 | Table S16 | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
 | Table S17 | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
 | Table S18 | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
+| Table S19 | Pointwise PPC result generated by [`complete_observation_level_ppc.R`](<data analysis/complete_observation_level_ppc.R>); see `unusual_observation_ppc.csv` and `.tex` |
 
 For Tables S1 and S5, every cell of the 3 x 3 true-graph/fitted-graph
 comparison is required. Consequently, all nine simulation scripts, all nine
@@ -505,16 +520,19 @@ C++ samplers
 | Result | Repository files |
 |---|---|
 | Figure S1 | The DAGAR panel is generated by [`WAIC_comparison.R`](<Misspecified models/WAIC/WAIC_comparison.R>); the CAR panel is generated by [`WAIC_comparison_CAR.R`](<CAR/WAIC/WAIC_comparison_CAR.R>) |
-| Figure S2 | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
+| Figure S2 | Estimated FDR curves from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
 | Figures S3--S6 | HPD plots from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "adj"` |
 | Figure S7 | California county-name map; no code that adds the county labels is currently present in the repository |
-| Figure S8 | Run [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
-| Figures S9--S12 | HPD plots from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
-| Figure S13 | Estimated FDR curves from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
-| Figures S14--S17 | Boundary and non-adjacency maps from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
-| Figures S18--S21 | HPD plots from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
-| Figure S22 | Estimated FDR curves from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
-| Figures S23--S25 | Boundary maps from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
+| Figures S8--S11 | HPD plots from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
+| Figure S12 | Estimated FDR curves from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
+| Figures S13--S16 | Boundary and non-adjacency maps from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "meanadj"` |
+| Figures S17--S20 | HPD plots from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
+| Figure S21 | Estimated FDR curves from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
+| Figures S22--S24 | Boundary maps from [`data analysis/main.R`](<data analysis/main.R>) with `cvrts = "mean"` |
+| Figure S25 | Edge-level posterior boundary-probability agreement from [`posterior_predictive_sensitivity.R`](<data analysis/posterior_predictive_sensitivity.R>) |
+| Figure S26 | Mean--Adjacency versus Mean boundary maps from [`posterior_predictive_sensitivity.R`](<data analysis/posterior_predictive_sensitivity.R>) |
+| Figure S27 | Global posterior predictive checks from [`posterior_predictive_sensitivity.R`](<data analysis/posterior_predictive_sensitivity.R>) |
+| Figure S28 | Observed versus posterior predictive county-level counts from [`complete_observation_level_ppc.R`](<data analysis/complete_observation_level_ppc.R>) |
 
 ### Known reproducibility gaps
 
@@ -522,8 +540,5 @@ C++ samplers
   in the repository.
 - Figure S1 is assembled from two separate plotting scripts rather than produced
   by a single figure script.
-
-
-
 
 

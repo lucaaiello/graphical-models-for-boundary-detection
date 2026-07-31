@@ -300,8 +300,8 @@ Y <- c(Y1,Y2,Y3,Y4)
 E <- c(E1, E2, E3, E4)
 
 cvrts <- "adj" # "adj" for covariates only in the adjacency
-               # "mean" for covariates only in the mean structure reproducing Gao et al. (2023) model
                # "meanadj" for covariates both in the mean and in the adjacency model
+               # "mean" for covariates only in the mean structure reproducing Gao et al. (2023) model
 
 stopifnot(cvrts %in% c("adj", "mean", "meanadj"))
             
@@ -331,10 +331,37 @@ mcmc_samples <- MADAGAR(y=Y, X=X, Z1=Z1, Z2=Z2, Z3=Z3, E=E, cvrts = cvrts,
 
 toc()
 
-load("data analysis/results_adj.RData")
-
 names(mcmc_samples) <- c("beta", "phi", "theta", "u", "rho", "V", "r",
                          "F_r", "eta", "tau", "W1", "W2", "W3", "W4", "A")
+
+# Save the completed fit and the inputs required by the three-specification
+# sensitivity and posterior predictive workflows. Running this script once for
+# each value of cvrts creates results_adj.RData, results_meanadj.RData, and
+# results_mean.RData without overwriting one specification with another.
+mcmc_metadata <- list(
+  specification = cvrts,
+  seed = 12345L,
+  retained_draws = 10000L,
+  burn = 50000L,
+  thin = 5L,
+  saved_at = Sys.time()
+)
+results_file <- file.path(
+  "data analysis",
+  paste0("results_", cvrts, ".RData")
+)
+save(
+  mcmc_samples, mcmc_metadata,
+  X, X1, X2, X3, X4,
+  Y, Y1, Y2, Y3, Y4,
+  E, E1, E2, E3, E4,
+  final_perm, county.ID, Adj, neighbor_list0, neighbor_name,
+  rate_lung, rate_esophagus, rate_larynx, rate_colrect,
+  path,
+  file = results_file,
+  compress = TRUE
+)
+message("Saved completed ", cvrts, " fit to: ", results_file)
 
 samples.mcmc <- mcmc.list(mcmc(data.frame(beta = mcmc_samples$beta,
                                           theta = mcmc_samples$theta,
@@ -385,8 +412,8 @@ minESS(p = 293, alpha = .05, ess = 1847.068)
 
 # RESULTS: Supplementary HPD figures ------------------------------------------
 # cvrts = "adj": Figures S3-S6
-# cvrts = "meanadj": Figures S9-S12
-# cvrts = "mean": Figures S18-S21
+# cvrts = "meanadj": Figures S8-S11
+# cvrts = "mean": Figures S17-S20
 # Chain diagnostics and posterior intervals
 
 samples.ggs <- ggs(samples.mcmc, keep_original_order = TRUE)
@@ -527,7 +554,7 @@ lung_SIR <- ggplot(data = ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -541,7 +568,7 @@ esophageal_SIR <- ggplot(data = ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -555,7 +582,7 @@ larynx_SIR <- ggplot(data = ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -569,12 +596,16 @@ colorectal_SIR <- ggplot(data = ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
 
-ggarrange(lung_SIR, esophageal_SIR, larynx_SIR, colorectal_SIR, nrow = 1, ncol = 4)
+data_plot <- ggarrange(
+  lung_SIR, esophageal_SIR, larynx_SIR, colorectal_SIR,
+  nrow = 1, ncol = 4
+)
+data_plot
 
 # RESULT: Main Figure 3 - smoking, elderly, and poverty maps -------------------
 
@@ -586,7 +617,7 @@ smoking_plot <- ggplot(ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank()) +
@@ -600,7 +631,7 @@ old_plot <- ggplot(ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank()) +
@@ -614,13 +645,17 @@ poverty_plot <- ggplot(ca_counties_sf) +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank()) +
   ggtitle("Below poverty rate")
 
-ggarrange(smoking_plot, old_plot, poverty_plot, nrow = 1, ncol = 3)
+covariates_plot <- ggarrange(
+  smoking_plot, old_plot, poverty_plot,
+  nrow = 1, ncol = 3
+)
+covariates_plot
 
 ################################################################################
 
@@ -632,8 +667,8 @@ bord <- ca_counties_sf %>% ms_innerlines()
 
 # RESULTS: Disease-specific difference boundaries -----------------------------
 # cvrts = "adj": Main Figures 5-6
-# cvrts = "meanadj": Figures S13-S14
-# cvrts = "mean": Figures S22-S23
+# cvrts = "meanadj": Figures S12-S13
+# cvrts = "mean": Figures S21-S22
 # This block computes FDR quantities/thresholds and draws the boundary maps.
 # Difference boundaries for each cancer
 
@@ -698,8 +733,8 @@ for(i in 1:length(threshold1)){
 
 # RESULT: FDR curves -----------------------------------------------------------
 # cvrts = "adj": Main Figure 5
-# cvrts = "meanadj": Figure S13
-# cvrts = "mean": Figure S22
+# cvrts = "meanadj": Figure S12
+# cvrts = "mean": Figure S21
 # FDR plot
 
 FDR_plot_df <- data.frame(
@@ -712,7 +747,7 @@ FDR_plot_df <- data.frame(
   )
 )
 
-ggplot(
+FDR_plot <- ggplot(
   FDR_plot_df,
   aes(x = selected_edges, y = estimated_FDR, linetype = cancer)
 ) +
@@ -728,6 +763,8 @@ ggplot(
         legend.title = element_text(size = 60),
         legend.text = element_text(size = 45),
         legend.key.size = unit(0.75,"cm"))
+
+FDR_plot
 
 # thresholds -------------------------------------------------------------------
 
@@ -773,7 +810,7 @@ for(i in which(est_diff1 == 1)){
                                     ca_counties_sf[ca_counties_sf$NAME==borders_ca1[i,2],],
                                     model = "closed") 
   edge_plot1 <- edge_plot1 + geom_sf(data = shared_border1, color = "blue", 
-                                     linewidth = ((pvij1[i]- min(ch_edge1))/(max(ch_edge1) - min(ch_edge1))) + 1)
+                                     linewidth = ((pvij1[i]- min(ch_edge1))/(max(ch_edge1) - min(ch_edge1)))*0.5 + 0.5)
 }
 
 edge_plot1 <- edge_plot1 +
@@ -782,7 +819,7 @@ edge_plot1 <- edge_plot1 +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -807,7 +844,7 @@ for(i in which(est_diff2 == 1)){
                                     ca_counties_sf[ca_counties_sf$NAME==borders_ca2[i,2],],
                                     model = "closed") 
   edge_plot2 <- edge_plot2 + geom_sf(data = shared_border2, color = "blue", 
-                                     linewidth = ((pvij2[i]- min(ch_edge2))/(max(ch_edge2) - min(ch_edge2))) + 1)
+                                     linewidth = ((pvij2[i]- min(ch_edge2))/(max(ch_edge2) - min(ch_edge2)))*0.5 + 0.5)
 }
 
 edge_plot2 <- edge_plot2 +
@@ -816,7 +853,7 @@ edge_plot2 <- edge_plot2 +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -841,7 +878,7 @@ for(i in which(est_diff3 == 1)){
                                     ca_counties_sf[ca_counties_sf$NAME==borders_ca3[i,2],],
                                     model = "closed") 
   edge_plot3 <- edge_plot3 + geom_sf(data = shared_border3, color = "blue", 
-                                     linewidth = ((pvij3[i]- min(ch_edge3))/(max(ch_edge3) - min(ch_edge3))) + 1)
+                                     linewidth = ((pvij3[i]- min(ch_edge3))/(max(ch_edge3) - min(ch_edge3)))*0.5 + 0.5)
 }
 
 edge_plot3 <- edge_plot3 +
@@ -850,7 +887,7 @@ edge_plot3 <- edge_plot3 +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -875,7 +912,7 @@ for(i in which(est_diff4 == 1)){
                                     ca_counties_sf[ca_counties_sf$NAME==borders_ca4[i,2],],
                                     model = "closed") 
   edge_plot4 <- edge_plot4 + geom_sf(data = shared_border4, color = "blue", 
-                                     linewidth = ((pvij4[i]- min(ch_edge4))/(max(ch_edge4) - min(ch_edge4))) + 1)
+                                     linewidth = ((pvij4[i]- min(ch_edge4))/(max(ch_edge4) - min(ch_edge4)))*0.5 + 0.5)
 }
 
 edge_plot4 <- edge_plot4 +
@@ -884,7 +921,7 @@ edge_plot4 <- edge_plot4 +
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.ticks = element_blank(),
-        plot.title = element_text(size=60, face="bold",hjust = 0.5),
+        plot.title = element_text(size=30, face="bold",hjust = 0.5),
         legend.text = element_text(size = 30),
         legend.key.size = unit(0.75,"cm"),
         legend.title = element_blank())
@@ -892,8 +929,11 @@ edge_plot4 <- edge_plot4 +
 edge_plot4
 
 
-#pdf("est_diff_cancer_dagar_pois.pdf", height = 10, width = 12)
-ggarrange(edge_plot1, edge_plot2, edge_plot3, edge_plot4, nrow = 1, ncol = 4)
+difference_boundary_plot <- ggarrange(
+  edge_plot1, edge_plot2, edge_plot3, edge_plot4,
+  nrow = 1, ncol = 4
+)
+difference_boundary_plot
 
 ################################################################################
 
@@ -970,8 +1010,8 @@ path[[133]] <- path[[133]][-1,]
 
 # RESULTS: Shared difference-boundary maps ------------------------------------
 # cvrts = "adj": Main Figure 7
-# cvrts = "meanadj": Figure S15
-# cvrts = "mean": Figure S24
+# cvrts = "meanadj": Figure S14
+# cvrts = "mean": Figure S23
 # Shared difference boundaries for each pair of cancers
 
 bc <- function(x){
@@ -1091,7 +1131,7 @@ for(i in which(est_diffc12==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Esophageal (T = ", T12c, ")", sep=""))
+    ggtitle(paste("Lung, Esophageal (", T12c, ")", sep=""))
 }
 
 edge_plotc12
@@ -1112,7 +1152,7 @@ for(i in which(est_diffc13==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Larynx (T = ", T13c, ")", sep=""))
+    ggtitle(paste("Lung, Larynx (", T13c, ")", sep=""))
 }
 
 edge_plotc13 <- edge_plotc13 +
@@ -1122,7 +1162,7 @@ edge_plotc13 <- edge_plotc13 +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-  ggtitle(paste("Lung, Larynx (T = ", T13c, ")", sep=""))
+  ggtitle(paste("Lung, Larynx (", T13c, ")", sep=""))
 
 edge_plotc13
 
@@ -1142,7 +1182,7 @@ for(i in which(est_diffc14==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Colorectal (T = ", T14c, ")", sep=""))
+    ggtitle(paste("Lung, Colorectal (", T14c, ")", sep=""))
 }
 edge_plotc14
 
@@ -1162,7 +1202,7 @@ for(i in which(est_diffc23==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Esophageal, Larynx (T = ", T23c, ")", sep=""))
+    ggtitle(paste("Esophageal, Larynx (", T23c, ")", sep=""))
 }
 
 edge_plotc23 <- edge_plotc23 +
@@ -1172,7 +1212,7 @@ edge_plotc23 <- edge_plotc23 +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-  ggtitle(paste("Esophageal, Larynx (T = ", T23c, ")", sep=""))
+  ggtitle(paste("Esophageal, Larynx (", T23c, ")", sep=""))
 
 edge_plotc23
 
@@ -1192,7 +1232,7 @@ for(i in which(est_diffc24==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Esophageal, Colorectal (T = ", T24c, ")", sep=""))
+    ggtitle(paste("Esophageal, Colorectal (", T24c, ")", sep=""))
 }
 edge_plotc24
 
@@ -1212,7 +1252,7 @@ for(i in which(est_diffc34==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Larynx, Colorectal (T = ", T34c, ")", sep=""))
+    ggtitle(paste("Larynx, Colorectal (", T34c, ")", sep=""))
 }
 
 edge_plotc34 <- edge_plotc34 +
@@ -1222,20 +1262,22 @@ edge_plotc34 <- edge_plotc34 +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-  ggtitle(paste("Larynx, Colorectal (T = ", T34c, ")", sep=""))
+  ggtitle(paste("Larynx, Colorectal (", T34c, ")", sep=""))
 
 edge_plotc34
 
 
-#pdf("est_share_dagar_pois.pdf", height = 10, width = 15)
-ggarrange(edge_plotc12, edge_plotc13, edge_plotc14, 
-          edge_plotc23, edge_plotc24, edge_plotc34, nrow = 2, ncol = 3)
-#dev.off()
+shared_boundary_plot <- ggarrange(
+  edge_plotc12, edge_plotc13, edge_plotc14,
+  edge_plotc23, edge_plotc24, edge_plotc34,
+  nrow = 2, ncol = 3
+)
+shared_boundary_plot
 
 # RESULTS: Mutual cross-difference-boundary maps -------------------------------
 # cvrts = "adj": Main Figure 8
-# cvrts = "meanadj": Figure S16
-# cvrts = "mean": Figure S25
+# cvrts = "meanadj": Figure S15
+# cvrts = "mean": Figure S24
 # Mutual cross-disease difference boundaries
 
 bc1 <- function(x){
@@ -1341,7 +1383,7 @@ for(i in which(est_diff12==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Esophageal (T = ", T12, ")", sep=""))
+    ggtitle(paste("Lung, Esophageal (", T12, ")", sep=""))
 }
 edge_plot12
 
@@ -1360,7 +1402,7 @@ for(i in which(est_diff13==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Larynx (T = ", T13, ")", sep=""))
+    ggtitle(paste("Lung, Larynx (", T13, ")", sep=""))
 }
 edge_plot13
 
@@ -1379,7 +1421,7 @@ for(i in which(est_diff14==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Lung, Colorectal (T = ", T14, ")", sep=""))
+    ggtitle(paste("Lung, Colorectal (", T14, ")", sep=""))
 }
 edge_plot14
 
@@ -1398,7 +1440,7 @@ for(i in which(est_diff23==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Esophageal, Larynx (T = ", T23, ")", sep=""))
+    ggtitle(paste("Esophageal, Larynx (", T23, ")", sep=""))
 }
 
 edge_plot23 <- edge_plot23 + 
@@ -1408,7 +1450,7 @@ edge_plot23 <- edge_plot23 +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-  ggtitle(paste("Esophageal, Larynx (T = ", T23, ")", sep=""))
+  ggtitle(paste("Esophageal, Larynx (", T23, ")", sep=""))
 
 edge_plot23
 
@@ -1427,7 +1469,7 @@ for(i in which(est_diff24==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Esophageal, Colorectal (T = ", T24, ")", sep=""))
+    ggtitle(paste("Esophageal, Colorectal (", T24, ")", sep=""))
 }
 edge_plot24
 
@@ -1446,7 +1488,7 @@ for(i in which(est_diff34==1)){
           axis.text = element_blank(),
           axis.ticks = element_blank(),
           plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-    ggtitle(paste("Larynx, Colorectal (T = ", T34, ")", sep=""))
+    ggtitle(paste("Larynx, Colorectal (", T34, ")", sep=""))
 }
 
 edge_plot34 <- edge_plot34 + 
@@ -1456,17 +1498,20 @@ edge_plot34 <- edge_plot34 +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         plot.title = element_text(size=20, face="bold",hjust = 0.5)) +
-  ggtitle(paste("Larynx, Colorectal (T = ", T34, ")", sep=""))
+  ggtitle(paste("Larynx, Colorectal (", T34, ")", sep=""))
 
 edge_plot34
 
-#pdf("est_crossd_car_pois.pdf", height = 10, width = 15)
-ggarrange(edge_plot12, edge_plot13, edge_plot14, 
-          edge_plot23, edge_plot24, edge_plot34, nrow = 2, ncol = 3)
+mutual_boundary_plot <- ggarrange(
+  edge_plot12, edge_plot13, edge_plot14,
+  edge_plot23, edge_plot24, edge_plot34,
+  nrow = 2, ncol = 3
+)
+mutual_boundary_plot
 
 # RESULTS: Non-adjacency maps --------------------------------------------------
 # cvrts = "adj": Main Figure 9
-# cvrts = "meanadj": Figure S17
+# cvrts = "meanadj": Figure S16
 # Not applicable when cvrts = "mean" because that model keeps adjacency fixed.
 # Adjacency modeling
 
@@ -1518,7 +1563,7 @@ for(i in 1:nrow(neighbor_list0)){
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
-            plot.title = element_text(size=35, face="bold",hjust = 0.5)) +
+            plot.title = element_text(size=30, face="bold",hjust = 0.5)) +
       ggtitle("Lung non-adjacencies")  
   }
 }
@@ -1541,7 +1586,7 @@ for(i in 1:nrow(neighbor_list0)){
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
-            plot.title = element_text(size=35, face="bold",hjust = 0.5)) +
+            plot.title = element_text(size=30, face="bold",hjust = 0.5)) +
       ggtitle("Esophageal non-adjacencies")
   }
 }
@@ -1564,7 +1609,7 @@ for(i in 1:nrow(neighbor_list0)){
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
-            plot.title = element_text(size=35, face="bold",hjust = 0.5)) +
+            plot.title = element_text(size=30, face="bold",hjust = 0.5)) +
       ggtitle("Larynx non-adjacencies")  
   }
 }
@@ -1587,23 +1632,25 @@ for(i in 1:nrow(neighbor_list0)){
             axis.title = element_blank(),
             axis.text = element_blank(),
             axis.ticks = element_blank(),
-            plot.title = element_text(size=35, face="bold",hjust = 0.5)) +
+            plot.title = element_text(size=30, face="bold",hjust = 0.5)) +
       ggtitle("Colorectal non-adjacencies")  
   }
 }
 
 adj_plot4
 
-print(ggarrange(
+adjacency_plot <- ggarrange(
   adj_plot1, adj_plot2, adj_plot3, adj_plot4,
   nrow = 1, ncol = 4
-))
+)
+
+adjacency_plot
 
 }
 
-# RESULTS: Adjacency-cardinality traceplots ------------------------------------
-# cvrts = "adj": Figure S2
-# cvrts = "meanadj": Figure S8
+# ADDITIONAL DIAGNOSTIC: Adjacency-cardinality traceplots ----------------------
+# These graph-level traces are available interactively but are not included in
+# the current manuscript or Supplementary Material.
 # Not applicable when cvrts = "mean" because that model keeps adjacency fixed.
 # Graph cardinality
 

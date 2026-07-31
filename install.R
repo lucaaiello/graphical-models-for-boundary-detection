@@ -37,6 +37,7 @@ cran_packages <- c(
   "RcppArmadillo",
   "readr",
   "rmapshaper",
+  "scales",
   "sf",
   "spdep",
   "stringr",
@@ -62,13 +63,3 @@ if (length(remaining) > 0) {
     call. = FALSE
   )
 }
-
-message(
-  "Note: the archived maptools, rgeos, and gpclib packages have been replaced ",
-  "with sf-based polygon construction, centroid extraction, and boundary plotting."
-)
-
-message(
-  "Note: RcppGSL and RcppEigen are not installed by default because the ",
-  "current sampler code does not use GSL or Eigen APIs."
-)
