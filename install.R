@@ -32,6 +32,7 @@ cran_packages <- c(
   "msos",
   "mvtnorm",
   "plyr",
+  "posterior",
   "RColorBrewer",
   "Rcpp",
   "RcppArmadillo",
