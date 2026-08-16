@@ -5,6 +5,7 @@
 data analysis/*
 !data analysis/data/
 !data analysis/data/**
+!data analysis/disease_graph_schematics.R
 !data analysis/exploratory_figures_seer.R
 !data analysis/main_multiple_chains.R
 !data analysis/main_multiple_chains_tempering.R

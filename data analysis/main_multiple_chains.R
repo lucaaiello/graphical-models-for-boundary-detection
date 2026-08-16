@@ -155,8 +155,9 @@ ca.latrange <- round(quantile(ca.coord[,2],c(0.25,0.75)))
 ca.albersproj <- mapproject(ca.coord[,1],ca.coord[,2],
                             projection = "albers",param=ca.latrange)
 
-# RESULT: Main Figure 2 - Moran's I by neighbor order --------------------------
-# Calculate Moran's I for each cancer using albers projection
+# Data preparation: Moran's I by neighbor order -------------------------------
+# This calculation is retained for the SEER setup. The reported Main Figure 2
+# is generated and saved by exploratory_figures_seer.R.
 
 projmat <- cbind(ca.albersproj$x,ca.albersproj$y)
 dmat <- as.matrix(dist(projmat))

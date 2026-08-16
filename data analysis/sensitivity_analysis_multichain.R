@@ -574,35 +574,6 @@ agreement_annotations <- do.call(rbind, lapply(split(
   )
 }))
 
-# FIGURE: California county names used in the supplementary discussion --------
-# st_point_on_surface keeps labels inside multipart county geometries more
-# reliably than raw centroids. The map rows use the same geographic ordering as
-# the adjacency edge list and the fitted-risk summaries.
-county_label_map <- suppressWarnings(sf::st_point_on_surface(
-  reference$county_map
-))
-county_label_map$county_label <- title_case_county(reference$county_names)
-named_map_plot <- ggplot2::ggplot() +
-  ggplot2::geom_sf(
-    data = reference$county_map, fill = "grey97", color = "grey45",
-    linewidth = 0.25
-  ) +
-  ggplot2::geom_sf_text(
-    data = county_label_map, ggplot2::aes(label = county_label),
-    size = 2.25, color = "black", lineheight = 0.9
-  ) +
-  ggplot2::coord_sf(datum = NA) +
-  ggplot2::theme_void()
-named_map_pdf <- file.path(
-  figures_dir, "named_map_multichain_california_counties.pdf"
-)
-named_map_png <- sub("\\.pdf$", ".png", named_map_pdf)
-ggplot2::ggsave(named_map_pdf, named_map_plot, width = 8.5, height = 10.5)
-ggplot2::ggsave(
-  named_map_png, named_map_plot, width = 8.5, height = 10.5,
-  dpi = 300, bg = "white"
-)
-
 agreement_plot <- ggplot2::ggplot(
   agreement_data,
   ggplot2::aes(x = probability_A, y = probability_B)
@@ -773,7 +744,6 @@ artifact_paths <- c(
   edge_file, classification_file, overlap_file, edge_changes_file,
   sensitivity_csv, sensitivity_tex,
   fitted_risk_file, fitted_risk_summary_file,
-  named_map_pdf, named_map_png,
   agreement_pdf, agreement_png, boundary_map_pdf, boundary_map_png,
   metadata_file, input_manifest_file
 )

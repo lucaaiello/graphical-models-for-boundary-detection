@@ -22,6 +22,7 @@ the repository root, for example:
 
 ```sh
 Rscript "data analysis/exploratory_figures_seer.R"
+Rscript "data analysis/disease_graph_schematics.R"
 ```
 
 The sampler source files are compiled with `Rcpp::sourceCpp()`, so a working C/C++
@@ -44,7 +45,8 @@ intended as a stable public API.
 | Script type | Required inputs | Anticipated outputs |
 |---|---|---|
 | [`install.R`](install.R) | An R installation, internet access, and a C/C++ toolchain | Installs the required R packages |
-| [`data analysis/exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>) | `SIR_adjusted.csv`, `covariates.csv`, and `smoking.csv` in `data analysis/data/` | Creates the three observed-data PDFs used as main Figures 1--3 under `data analysis/exploratory_figures/` |
+| [`data analysis/exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>) | `SIR_adjusted.csv`, `covariates.csv`, and `smoking.csv` in `data analysis/data/` | Creates the observed-data PDFs used as main Figures 1--3 and the California county-name map used as Figure S7 under `data analysis/exploratory_figures/` |
+| [`data analysis/disease_graph_schematics.R`](<data analysis/disease_graph_schematics.R>) | No data inputs | Deterministically creates the unstructured, directed-acyclic, and undirected disease-graph panels used as main Figure 4 |
 | [`data analysis/main_multiple_chains_tempering.R`](<data analysis/main_multiple_chains_tempering.R>) and [`sampler_multiple_chains_tempering.cpp`](<data analysis/sampler_multiple_chains_tempering.cpp>) | The SEER data and one of `adj`, `meanadj`, or `mean` | Runs the reported six-chain adaptive-tempering analysis and saves each completed cold posterior stream |
 | [`data analysis/postprocess_multiple_chains_tempering.R`](<data analysis/postprocess_multiple_chains_tempering.R>) | A completed adaptive-tempering run | Writes specification-specific diagnostics, posterior tables, FDR summaries, and manuscript figures |
 | [`data analysis/main_multiple_chains.R`](<data analysis/main_multiple_chains.R>) and [`sampler_multiple_chains.cpp`](<data analysis/sampler_multiple_chains.cpp>) | The same SEER inputs and specification | Runs the independent non-tempered six-chain replication used only for sampler sensitivity |
@@ -61,7 +63,7 @@ intended as a stable public API.
 | WAIC comparison scripts | The corresponding WAIC vectors | Draws the WAIC density plots used in Figure S1 |
 | Comparison folders | Their `sim_*.R` or comparison generator followed by the matching `assessment.R` | Produces the Lee & Mitchell and Li et al. comparison summaries |
 
-The standalone exploratory script saves Figures 1--3 directly. The reported
+The two standalone figure scripts save Figures 1--4 and Figure S7 directly. The reported
 model fits and every downstream table and figure are likewise saved in their
 workflow-specific output directories; those generated outputs are excluded
 from Git and are recreated by the scripts above.
@@ -120,7 +122,7 @@ post-processing add some overhead.
 |---|---:|---|
 | Install R dependencies with `install.R` | 5--30 minutes | Usually required only once; network speed and compilation dominate |
 | Compile one C++ sampler | Less than 1--3 minutes | Performed by `Rcpp::sourceCpp()` when a fitting script starts |
-| Generate observed-data Figures 1--3 | Usually less than 1 minute after the Census geometry is cached | The first run may require downloading the fixed 2016 county geometry |
+| Generate observed-data Figures 1--3 and Figure S7 | Usually less than 1 minute after the Census geometry is cached | The first run may require downloading the fixed 2016 county geometry |
 | Post-process one completed empirical fit | Seconds to a few minutes | Run the matching standalone post-processing script after all six chains finish |
 | One six-chain adaptive-tempering SEER specification | Approximately 15--20 hours on the reference machine | Six parallel workers, 16 temperatures per worker, 50,000 warm-up iterations and 25,000 retained cold draws per worker |
 | One six-chain non-tempered SEER replication | Approximately 1.3--1.8 hours on the reference machine | Six parallel workers, 300,000 warm-up and 500,000 sampling iterations per worker, retaining every tenth draw |
@@ -254,9 +256,11 @@ post-processing script. The resulting setting-specific outputs are:
 - `cvrts = "meanadj"` produces Table S17 and Figures S8--S16;
 - `cvrts = "mean"` produces Table S18 and Figures S17--S24.
 
-Figures 1--3 are produced independently by
+Figures 1--3 and the California county-name map in Figure S7 are produced independently by
 `data analysis/exploratory_figures_seer.R` from the observed data and do not
-depend on the fitted model variant.
+depend on the fitted model variant. The conceptual disease-graph panels in
+Figure 4 are produced by `data analysis/disease_graph_schematics.R` and require
+no data or posterior samples.
 
 ### Three-specification sensitivity and posterior predictive workflow
 
@@ -349,9 +353,10 @@ source("data analysis/validate_seer_manuscript_artifacts.R")
 
 `validate_seer_manuscript_artifacts.R` writes
 `data analysis/validation/seer_manuscript_artifact_manifest.csv`, verifies
-every currently reportable SEER table and figure, and stops with an explicit
-list if any required artifact is missing. The validation directory is created
-automatically.
+every currently reportable SEER table, figure, and machine-readable numerical
+source, and records the producing script, searchable `# RESULT:` marker, and
+current source line. It stops with an explicit list if an artifact or code
+marker is missing. The validation directory is created automatically.
 
 #### Published multichain result index
 
@@ -359,8 +364,21 @@ The relevant blocks are marked by searchable `# RESULT:` comments. Run each
 complete script because the published blocks use validated objects constructed
 earlier in that file.
 
-| Published result | Script | Current lines | Generated file |
+| Published result | Script | Searchable code marker | Generated file |
 |---|---|---:|---|
+| Main Figures 1--3 | [`exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>) | Search `# RESULT: Main Figure 1`, `2`, or `3` | `exploratory_figures/figure_1_seer_cancer_sir_maps.pdf`, `figure_2_seer_morans_i_by_distance_band.pdf`, and `figure_3_seer_covariate_maps.pdf` |
+| Main Figure 4 | [`disease_graph_schematics.R`](<data analysis/disease_graph_schematics.R>) | Search `# RESULT: Main Figure 4` | `exploratory_figures/figure_4_disease_graph_schematics.pdf` |
+| Main Figure 5 / Figures S13 and S22 | [`postprocess_multiple_chains_tempering.R`](<data analysis/postprocess_multiple_chains_tempering.R>) | Search `# RESULT: Main Figure 5 / Supplementary Figures S13 and S22` | `pooled_fdr_boundary_maps_<specification>.pdf` |
+| Main Figure 6 / Figures S14 and S23 | Same script | Search `# RESULT: Main Figure 6 / Supplementary Figures S14 and S23` | `shared_fdr_boundary_maps_<specification>.pdf` |
+| Main Figure 7 / Figures S15 and S24 | Same script | Search `# RESULT: Main Figure 7 / Supplementary Figures S15 and S24` | `mutual_fdr_boundary_maps_<specification>.pdf` |
+| Main Figure 8 / Figure S16 | Same script | Search `# RESULT: Main Figure 8 / Supplementary Figure S16` | `pooled_non_adjacency_maps_adj.pdf` and `pooled_non_adjacency_maps_meanadj.pdf` |
+| Figures S2, S12, and S21 | Same script | Search `# RESULT: Supplementary Figures S2, S12, and S21` | `pooled_fdr_curves_<specification>.pdf` |
+| Figures S3, S8, and S17 | Same script | Search `# RESULT: Supplementary Figures S3, S8, and S17` | `pooled_beta_theta_<specification>.pdf` |
+| Figures S4, S9, and S18 | Same script | Search `# RESULT: Supplementary Figures S4, S9, and S18` | `pooled_gamma_<specification>.pdf` |
+| Figures S5, S10, and S19 | Same script | Search `# RESULT: Supplementary Figures S5, S10, and S19` | `pooled_V_rho_<specification>.pdf` |
+| Figures S6, S11, and S20 | Same script | Search `# RESULT: Supplementary Figures S6, S11, and S20` | `pooled_eta_covariance_adj.pdf`, `pooled_eta_covariance_meanadj.pdf`, and `pooled_covariance_mean.pdf` |
+| Tables S16--S18 | Same script | Search `# RESULT: Supplementary Tables S16--S18` | `pooled_table_S16_adj`, `pooled_table_S17_meanadj`, and `pooled_table_S18_mean`, each as `.csv` and `.tex` |
+| Supplementary Figure S7 | [`exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>) | Search `# RESULT: Supplementary Figure S7` | `exploratory_figures/named_map_multichain_california_counties.pdf` and `.png` |
 | Main Table 1: boundary sensitivity | [`sensitivity_analysis_multichain.R`](<data analysis/sensitivity_analysis_multichain.R>) | Search `# RESULT: main sensitivity table` | `sensitivity/tables/boundary_sensitivity_table_multichain_three_specifications.csv` and `.tex` |
 | Supplementary boundary-probability agreement | [`sensitivity_analysis_multichain.R`](<data analysis/sensitivity_analysis_multichain.R>) | Search `# RESULT: boundary-probability agreement figure` | `sensitivity/figures/boundary_probability_agreement_multichain_three_specifications.pdf` and `.png` |
 | Supplementary Mean--Adjacency versus Mean boundary map | [`sensitivity_analysis_multichain.R`](<data analysis/sensitivity_analysis_multichain.R>) | Search `# RESULT: Mean--Adjacency versus Mean FDR boundary map` | `sensitivity/figures/boundary_maps_multichain_meanadj_vs_mean.pdf` and `.png` |
@@ -460,7 +478,7 @@ Tables 1--2) and supplementary material (Tables S1--S19 and Figures S1--S28).
 | Figure 1 | Cancer SIR maps | [`data analysis/exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>); see `figure_1_seer_cancer_sir_maps.pdf` |
 | Figure 2 | Moran's I by distance band | Same script; see `figure_2_seer_morans_i_by_distance_band.pdf` |
 | Figure 3 | Smoking, elderly-population, and poverty maps | Same script; see `figure_3_seer_covariate_maps.pdf` |
-| Figure 4 | Three disease-graph schematics | No generating script or source graphic is currently present in the repository |
+| Figure 4 | Three disease-graph schematics | [`data analysis/disease_graph_schematics.R`](<data analysis/disease_graph_schematics.R>); see `figure_4_disease_graph_schematics.pdf` |
 | Figure 5 | Disease-specific difference boundaries | The Adjacency `hotter_final` run followed by [`postprocess_multiple_chains_tempering.R`](<data analysis/postprocess_multiple_chains_tempering.R>); see `pooled_fdr_boundary_maps_adj.pdf` |
 | Figure 6 | Shared difference boundaries | Same workflow; see `shared_fdr_boundary_maps_adj.pdf` |
 | Figure 7 | Mutual cross-difference boundaries | Same workflow; see `mutual_fdr_boundary_maps_adj.pdf` |
@@ -535,16 +553,15 @@ C++ samplers
 | Figure S1 | The DAGAR panel is generated by [`WAIC_comparison.R`](<Misspecified models/WAIC/WAIC_comparison.R>); the CAR panel is generated by [`WAIC_comparison_CAR.R`](<CAR/WAIC/WAIC_comparison_CAR.R>) |
 | Figure S2 | Adjacency pooled FDR curves from [`postprocess_multiple_chains_tempering.R`](<data analysis/postprocess_multiple_chains_tempering.R>) |
 | Figures S3--S6 | Adjacency pooled posterior interval figures from the same post-processing script |
-| Figure S7 | California county-name map from [`sensitivity_analysis_multichain.R`](<data analysis/sensitivity_analysis_multichain.R>) |
+| Figure S7 | California county-name map from [`exploratory_figures_seer.R`](<data analysis/exploratory_figures_seer.R>) |
 | Figures S8--S16 | Mean--Adjacency posterior intervals, FDR curves, boundary maps, and non-adjacency map from [`postprocess_multiple_chains_tempering.R`](<data analysis/postprocess_multiple_chains_tempering.R>) |
 | Figures S17--S24 | Mean posterior intervals, FDR curves, and boundary maps from the same post-processing script |
 | Model-sensitivity figures | Edge-level boundary-probability agreement and Mean--Adjacency versus Mean boundary maps from [`sensitivity_analysis_multichain.R`](<data analysis/sensitivity_analysis_multichain.R>) |
 | Sampler-sensitivity figures | Boundary-probability and fitted-log-risk agreement from [`sampler_sensitivity_multichain.R`](<data analysis/sampler_sensitivity_multichain.R>) |
 | Posterior-predictive figures | Global checks and observed versus fitted counts from [`posterior_predictive_checks_multichain.R`](<data analysis/posterior_predictive_checks_multichain.R>) |
 
-### Known reproducibility gaps
+### Known reproducibility limitation outside the data-analysis workflow
 
-- Figure 4 does not have complete generating code or source graphics in the
-  repository.
-- Figure S1 is assembled from two separate plotting scripts rather than produced
-  by a single figure script.
+- Figure S1 is assembled from two separate simulation plotting scripts rather
+  than produced by a single figure script. This will be addressed when the
+  simulation experiments are reorganized.

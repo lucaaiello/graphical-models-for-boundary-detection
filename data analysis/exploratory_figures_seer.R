@@ -1,16 +1,18 @@
 rm(list = ls())
 
-# Standalone generation of main-manuscript Figures 1--3
+# Standalone generation of main Figures 1--3 and Supplementary Figure S7
 # =============================================================================
 # Run from the repository root with:
 #   source("data analysis/exploratory_figures_seer.R")
 #
 # This script uses observed SEER counts, expected counts, and county covariates;
-# it does not read posterior draws or run MCMC. It creates exactly three PDFs:
+# it does not read posterior draws or run MCMC. It creates the following files:
 #   data analysis/exploratory_figures/
 #     figure_1_seer_cancer_sir_maps.pdf
 #     figure_2_seer_morans_i_by_distance_band.pdf
 #     figure_3_seer_covariate_maps.pdf
+#     named_map_multichain_california_counties.pdf
+#     named_map_multichain_california_counties.png
 
 options(stringsAsFactors = FALSE, tigris_use_cache = TRUE)
 
@@ -171,7 +173,7 @@ smoking_data <- data.frame(
   stringsAsFactors = FALSE
 )
 
-# Fixed-year Census cartographic boundary geometry for Figures 1 and 3.
+# Fixed-year Census cartographic boundary geometry for Figures 1, 3, and S7.
 ca_counties_sf <- tryCatch(
   tigris::counties(state = "CA", cb = TRUE, year = 2016, class = "sf"),
   error = function(error) {
@@ -368,7 +370,44 @@ ggplot2::ggsave(
   device = grDevices::cairo_pdf
 )
 
-figure_files <- c(figure_1_file, figure_2_file, figure_3_file)
+# RESULT: Supplementary Figure S7 - California county-name map ----------------
+# st_point_on_surface keeps labels inside multipart county geometries more
+# reliably than raw centroids. Compute label locations in the California Albers
+# projection so that sf does not apply planar operations to longitude/latitude.
+figure_s7_geometry <- sf::st_transform(ca_counties_sf, 3310)
+county_label_map <- suppressWarnings(
+  sf::st_point_on_surface(figure_s7_geometry)
+)
+county_label_map$county_label <- tools::toTitleCase(
+  as.character(county_label_map$NAME)
+)
+figure_s7 <- ggplot2::ggplot() +
+  ggplot2::geom_sf(
+    data = figure_s7_geometry, fill = "grey97", color = "grey45",
+    linewidth = 0.25
+  ) +
+  ggplot2::geom_sf_text(
+    data = county_label_map, ggplot2::aes(label = county_label),
+    size = 2.25, color = "black", lineheight = 0.9
+  ) +
+  ggplot2::coord_sf(datum = NA) +
+  ggplot2::theme_void()
+figure_s7_pdf <- file.path(
+  output_dir, "named_map_multichain_california_counties.pdf"
+)
+figure_s7_png <- sub("\\.pdf$", ".png", figure_s7_pdf)
+ggplot2::ggsave(
+  figure_s7_pdf, figure_s7, width = 8.5, height = 10.5,
+  device = grDevices::cairo_pdf
+)
+ggplot2::ggsave(
+  figure_s7_png, figure_s7, width = 8.5, height = 10.5,
+  dpi = 300, bg = "white"
+)
+
+figure_files <- c(
+  figure_1_file, figure_2_file, figure_3_file, figure_s7_pdf, figure_s7_png
+)
 if (!all(file.exists(figure_files))) {
   stop("One or more exploratory figures were not created.", call. = FALSE)
 }

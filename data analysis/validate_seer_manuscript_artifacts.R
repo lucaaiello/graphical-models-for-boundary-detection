@@ -185,6 +185,29 @@ specification_artifacts <- function(specification, table_number) {
       "source_data", required_now
     )
   )
+  numerical_source_stems <- c(
+    "diagnostic_overview",
+    "posterior_summary_core",
+    "posterior_summary_dependence",
+    "pooled_boundary_counts",
+    "pooled_random_effect_means",
+    "pooled_shared_boundary_counts",
+    "pooled_mutual_boundary_counts",
+    "selected_boundaries_pooled",
+    "fdr_curves"
+  )
+  rows <- c(
+    rows,
+    lapply(numerical_source_stems, function(stem) {
+      artifact_row(
+        paste0(stem, "_", specification),
+        "table_source", specification,
+        file.path(root, "diagnostics", paste0(stem, "_", specification, ".csv")),
+        NA_character_, "postprocess_multiple_chains_tempering.R",
+        "source_data", required_now
+      )
+    })
+  )
   if (specification != "mean") {
     rows <- append(
       rows,
@@ -228,6 +251,21 @@ exploratory_artifacts <- rbind(
     file.path(exploratory_dir, "figure_3_seer_covariate_maps.pdf"),
     file.path("Images", "figure_3_seer_covariate_maps.pdf"),
     "exploratory_figures_seer.R", "main"
+  ),
+  artifact_row(
+    "figure_4_disease_graph_schematics", "figure", "conceptual_model",
+    file.path(exploratory_dir, "figure_4_disease_graph_schematics.pdf"),
+    file.path("Images", "figure_4_disease_graph_schematics.pdf"),
+    "disease_graph_schematics.R", "main"
+  ),
+  artifact_row(
+    "named_map_multichain_california_counties", "figure",
+    "observed_data",
+    file.path(
+      exploratory_dir, "named_map_multichain_california_counties.pdf"
+    ),
+    file.path("Images", "named_map_multichain_california_counties.pdf"),
+    "exploratory_figures_seer.R", "supplement"
   )
 )
 
@@ -239,16 +277,6 @@ artifacts <- rbind(
 )
 
 sensitivity_artifacts <- rbind(
-  artifact_row(
-    "named_map_multichain_california_counties", "figure",
-    "three_specifications",
-    file.path(
-      sensitivity_dir, "figures",
-      "named_map_multichain_california_counties.pdf"
-    ),
-    file.path("Images", "named_map_multichain_california_counties.pdf"),
-    "sensitivity_analysis_multichain.R", "supplement"
-  ),
   artifact_row(
     "boundary_probability_agreement_multichain_three_specifications",
     "figure", "three_specifications",
@@ -291,6 +319,59 @@ sensitivity_artifacts <- rbind(
     file.path(
       sensitivity_dir, "tables",
       "boundary_sensitivity_table_multichain_three_specifications.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "edge_boundary_probabilities_multichain_three_specifications_csv",
+    "table_source", "three_specifications",
+    file.path(
+      sensitivity_dir, "tables",
+      "edge_boundary_probabilities_multichain_three_specifications.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "boundary_overlap_multichain_three_specifications_csv",
+    "table_source", "three_specifications",
+    file.path(
+      sensitivity_dir, "tables",
+      "boundary_overlap_multichain_three_specifications.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "boundary_selection_classification_multichain_three_specifications_csv",
+    "table_source", "three_specifications",
+    file.path(
+      sensitivity_dir, "tables",
+      "boundary_selection_classification_multichain_three_specifications.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "edge_changes_meanadj_vs_mean_multichain_csv",
+    "table_source", "meanadj_vs_mean",
+    file.path(
+      sensitivity_dir, "tables", "edge_changes_meanadj_vs_mean_multichain.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "fitted_relative_risk_means_multichain_three_specifications_csv",
+    "table_source", "three_specifications",
+    file.path(
+      sensitivity_dir, "tables",
+      "fitted_relative_risk_means_multichain_three_specifications.csv"
+    ),
+    NA_character_, "sensitivity_analysis_multichain.R", "source_data"
+  ),
+  artifact_row(
+    "fitted_risk_sensitivity_multichain_three_specifications_csv",
+    "table_source", "three_specifications",
+    file.path(
+      sensitivity_dir, "tables",
+      "fitted_risk_sensitivity_multichain_three_specifications.csv"
     ),
     NA_character_, "sensitivity_analysis_multichain.R", "source_data"
   )
@@ -479,6 +560,130 @@ artifacts <- rbind(
   sampler_sensitivity_artifacts,
   ppc_artifacts
 )
+
+artifact_code_marker <- function(artifact, generator) {
+  if (generator == "disease_graph_schematics.R") {
+    return("# RESULT: Main Figure 4")
+  }
+  if (generator == "exploratory_figures_seer.R") {
+    return(switch(
+      artifact,
+      figure_1_seer_cancer_sir_maps = "# RESULT: Main Figure 1",
+      figure_2_seer_morans_i_by_distance_band = "# RESULT: Main Figure 2",
+      figure_3_seer_covariate_maps = "# RESULT: Main Figure 3",
+      named_map_multichain_california_counties =
+        "# RESULT: Supplementary Figure S7"
+    ))
+  }
+  if (generator == "postprocess_multiple_chains_tempering.R") {
+    if (grepl("^pooled_fdr_boundary_maps_", artifact)) {
+      return("# RESULT: Main Figure 5 / Supplementary Figures S13 and S22")
+    }
+    if (grepl("^shared_fdr_boundary_maps_", artifact)) {
+      return("# RESULT: Main Figure 6 / Supplementary Figures S14 and S23")
+    }
+    if (grepl("^mutual_fdr_boundary_maps_", artifact)) {
+      return("# RESULT: Main Figure 7 / Supplementary Figures S15 and S24")
+    }
+    if (grepl("^pooled_non_adjacency_maps_", artifact)) {
+      return("# RESULT: Main Figure 8 / Supplementary Figure S16")
+    }
+    if (grepl("^pooled_fdr_curves_", artifact)) {
+      return("# RESULT: Supplementary Figures S2, S12, and S21")
+    }
+    if (grepl("^pooled_beta_theta_", artifact)) {
+      return("# RESULT: Supplementary Figures S3, S8, and S17")
+    }
+    if (grepl("^pooled_gamma_", artifact)) {
+      return("# RESULT: Supplementary Figures S4, S9, and S18")
+    }
+    if (grepl("^pooled_V_rho_", artifact)) {
+      return("# RESULT: Supplementary Figures S5, S10, and S19")
+    }
+    if (grepl("^pooled_(eta_)?covariance_", artifact)) {
+      return("# RESULT: Supplementary Figures S6, S11, and S20")
+    }
+    if (grepl("^pooled_table_S(16|17|18)_", artifact)) {
+      return("# RESULT: Supplementary Tables S16--S18")
+    }
+    return("# RESULT SOURCES: manuscript numerical summaries and diagnostics")
+  }
+  if (generator == "sensitivity_analysis_multichain.R") {
+    if (grepl("^boundary_probability_agreement_", artifact)) {
+      return("# RESULT: boundary-probability agreement figure")
+    }
+    if (grepl("^boundary_maps_", artifact)) {
+      return("# RESULT: Mean--Adjacency versus Mean FDR boundary map")
+    }
+    if (grepl("^fitted_", artifact)) {
+      return("# RESULT: fitted relative-risk sensitivity")
+    }
+    if (grepl("^edge_boundary_probabilities_", artifact)) {
+      return("# RESULT: complete edge-level probabilities and FDR selections")
+    }
+    return("# RESULT: main sensitivity table")
+  }
+  if (generator == "sampler_sensitivity_multichain.R") {
+    if (grepl("convergence", artifact)) {
+      return("# RESULT: Supplementary sampler convergence table")
+    }
+    if (grepl("fitted_log_risk", artifact)) {
+      return("# RESULT: Supplementary fitted log-risk agreement")
+    }
+    if (grepl("boundary_probability_agreement", artifact)) {
+      return("# RESULT: Supplementary sampler boundary-probability agreement figure")
+    }
+    return("# RESULT: Supplementary sampler boundary-robustness table")
+  }
+  if (generator == "posterior_predictive_checks_multichain.R") {
+    if (grepl("^ppc_multichain", artifact) || grepl("^global_ppc", artifact)) {
+      return("# RESULT: global PPC figure")
+    }
+    if (grepl("^observed_vs_fitted", artifact)) {
+      return("# RESULT: observed-versus-fitted PPC figure")
+    }
+    if (grepl("^observation_ppc_summary", artifact)) {
+      return("# RESULT: observation-level PPC summary table")
+    }
+    if (grepl("^unusual_observations", artifact)) {
+      return("# RESULT: low-predictive-support observations table")
+    }
+    return("# RESULT: complete machine-readable global and observation-level PPC tables")
+  }
+  NA_character_
+}
+
+artifacts$code_marker <- mapply(
+  artifact_code_marker, artifacts$artifact, artifacts$generator,
+  USE.NAMES = FALSE
+)
+artifacts$generator_file <- file.path("data analysis", artifacts$generator)
+artifacts$generator_line <- mapply(
+  function(generator_file, code_marker) {
+    if (!file.exists(generator_file) || is.na(code_marker)) return(NA_integer_)
+    hits <- grep(code_marker, readLines(generator_file, warn = FALSE), fixed = TRUE)
+    if (!length(hits)) return(NA_integer_)
+    hits[[1L]]
+  },
+  artifacts$generator_file, artifacts$code_marker,
+  USE.NAMES = FALSE
+)
+
+missing_code_markers <- artifacts[
+  is.na(artifacts$code_marker) | is.na(artifacts$generator_line),
+]
+if (nrow(missing_code_markers) > 0L) {
+  stop(
+    "Missing code marker for registered SEER artifact(s):\n",
+    paste(
+      " -", missing_code_markers$artifact,
+      "in", missing_code_markers$generator,
+      collapse = "\n"
+    ),
+    call. = FALSE
+  )
+}
+
 artifacts$source_file <- vapply(
   artifacts$source_file,
   function(path) {

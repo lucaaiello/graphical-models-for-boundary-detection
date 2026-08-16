@@ -1348,7 +1348,10 @@ boundary_cutoff_sensitivity <- do.call(
   })
 )
 
-# FDR-curve figures -------------------------------------------------------------
+# RESULT: Supplementary Figures S2, S12, and S21 - pooled FDR curves ----------
+# The specification determines the manuscript number: Adjacency = S2,
+# Mean--Adjacency = S12, and Mean = S21. The chain-specific curves saved below
+# are diagnostics and are not manuscript figures.
 
 pooled_fdr_curves <- fdr_curves[fdr_curves$pooled, , drop = FALSE]
 pooled_fdr_plot <- ggplot2::ggplot(
@@ -1400,10 +1403,14 @@ chain_fdr_file <- file.path(
 )
 ggplot2::ggsave(chain_fdr_file, chain_fdr_plot, width = 11, height = 8)
 
-# Supplementary posterior caterpillar plots -----------------------------------
+# RESULTS: Supplementary posterior interval figures ---------------------------
 # These are generated for all adaptive-tempering specifications. The
-# Adjacency files correspond to Supplementary Figures S3--S6. Mean--Adjacency
-# has the same four displays; Mean omits eta because adjacency is fixed.
+# exact manuscript mapping is:
+#   beta/theta:       S3 (Adjacency), S8 (Mean--Adjacency), S17 (Mean)
+#   gamma:            S4 (Adjacency), S9 (Mean--Adjacency), S18 (Mean)
+#   V/rho:            S5 (Adjacency), S10 (Mean--Adjacency), S19 (Mean)
+#   eta/covariance:   S6 (Adjacency), S11 (Mean--Adjacency)
+#   covariance only:  S20 (Mean)
 # The plotted intervals pool the retained cold-posterior draws from all six
 # independently initialized ladders. In the sampler output, r is the latent
 # Gaussian vector denoted by gamma in the manuscript.
@@ -1504,7 +1511,8 @@ if (is_tempering_workflow) {
     invisible(summary)
   }
 
-  # Tables S16--S18: pooled posterior mean, SD, and multiple-chain MCSE.
+  # RESULT: Supplementary Tables S16--S18 - pooled posterior summaries --------
+  # Adjacency = S16, Mean--Adjacency = S17, and Mean = S18.
   table_variable_names <- c(
     paste0("beta[", seq_len(ncol(supplement_draws$beta)), "]"),
     paste0("theta[", seq_len(ncol(supplement_draws$theta)), "]"),
@@ -1610,7 +1618,7 @@ if (is_tempering_workflow) {
     posterior_table_tex = table_tex_file
   )
 
-  # Adjacency Figure S3; analogous beta/theta figure for the other settings.
+  # RESULT: Supplementary Figures S3, S8, and S17 - beta and theta ------------
   figure_S3_file <- file.path(
     supplement_dir,
     paste0("pooled_beta_theta_", tempering_specification, ".pdf")
@@ -1629,7 +1637,7 @@ if (is_tempering_workflow) {
   )
   grDevices::dev.off()
 
-  # Adjacency Figure S4; analogous latent-Gaussian figure for other settings.
+  # RESULT: Supplementary Figures S4, S9, and S18 - latent gamma --------------
   figure_S4_file <- file.path(
     supplement_dir,
     paste0("pooled_gamma_", tempering_specification, ".pdf")
@@ -1648,7 +1656,7 @@ if (is_tempering_workflow) {
   }
   grDevices::dev.off()
 
-  # Adjacency Figure S5; analogous V/rho figure for the other settings.
+  # RESULT: Supplementary Figures S5, S10, and S19 - V and rho ----------------
   figure_S5_file <- file.path(
     supplement_dir,
     paste0("pooled_V_rho_", tempering_specification, ".pdf")
@@ -1665,8 +1673,9 @@ if (is_tempering_workflow) {
   )
   grDevices::dev.off()
 
-  # Adjacency Figure S6. Mean--Adjacency also displays eta and (A A^T)_{ij};
-  # Mean displays only (A A^T)_{ij}, because its adjacency matrix is fixed.
+  # RESULT: Supplementary Figures S6, S11, and S20 - covariance summaries -----
+  # Adjacency and Mean--Adjacency also display eta; Mean displays only
+  # (A A^T)_{ij}, because its adjacency matrix is fixed.
   covariance_draws <- matrix(
     NA_real_,
     nrow = nrow(supplement_draws$A),
@@ -1826,6 +1835,9 @@ build_random_effect_boundary_plot <- function(
   plot
 }
 
+# RESULT: Main Figure 5 / Supplementary Figures S13 and S22 -------------------
+# Disease-specific FDR boundary maps: Adjacency = Main Figure 5,
+# Mean--Adjacency = S13, and Mean = S22.
 pooled_disease_map_plots <- lapply(seq_len(n_diseases), function(disease) {
   build_random_effect_boundary_plot(
     disease_names[[disease]],
@@ -1901,6 +1913,9 @@ build_pair_boundary_plot <- function(
   plot
 }
 
+# RESULT: Main Figure 6 / Supplementary Figures S14 and S23 -------------------
+# Shared FDR boundary maps: Adjacency = Main Figure 6,
+# Mean--Adjacency = S14, and Mean = S23.
 shared_map_plots <- lapply(seq_len(n_pairs), function(pair_index) {
   build_pair_boundary_plot(
     pair_names[[pair_index]],
@@ -1917,6 +1932,9 @@ shared_map_pdf <- file.path(
 )
 ggplot2::ggsave(shared_map_pdf, shared_map_page, width = 12, height = 9)
 
+# RESULT: Main Figure 7 / Supplementary Figures S15 and S24 -------------------
+# Mutual cross-difference maps: Adjacency = Main Figure 7,
+# Mean--Adjacency = S15, and Mean = S24.
 mutual_map_plots <- lapply(seq_len(n_pairs), function(pair_index) {
   build_pair_boundary_plot(
     pair_names[[pair_index]],
@@ -1958,6 +1976,9 @@ build_non_adjacency_plot <- function(disease, probabilities) {
   plot
 }
 
+# RESULT: Main Figure 8 / Supplementary Figure S16 ----------------------------
+# Learned non-adjacency maps: Adjacency = Main Figure 8 and
+# Mean--Adjacency = S16. Mean uses fixed adjacency and has no such figure.
 non_adjacency_map_plots <- lapply(seq_len(n_diseases), function(disease) {
   build_non_adjacency_plot(
     disease_names[[disease]], non_adjacency_probabilities[, disease]
@@ -2056,6 +2077,9 @@ selected_pair_boundaries_to_data_frame <- function(results) {
   do.call(rbind, rows)
 }
 
+# RESULT SOURCES: manuscript numerical summaries and diagnostics --------------
+# These CSV files are the machine-readable sources for reported boundary counts,
+# posterior summaries, convergence diagnostics, map colors, and FDR selections.
 diagnostic_tables <- list(
   chain_metadata = chain_metadata,
   state_consistency = state_consistency_summary,
